@@ -1,0 +1,30 @@
+node_modules/
+backend/node_modules/
+.next/
+dist/
+.out/
+coverage/
+uploads/
+backend/uploads/
+.env
+backend/config.env
+*.log
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Builds
+dist/
+build/
+
+# Env files
+.env
+.env.*
+backend/config.env
+
+# Uploads (optional)
+backend/uploads/
