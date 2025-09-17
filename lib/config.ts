@@ -4,13 +4,13 @@ export const config = {
   apiUrl: process.env.NEXT_PUBLIC_API_URL || 
           (typeof window !== 'undefined' && window.location.origin.includes('localhost') 
             ? 'http://localhost:5000' 
-            : 'https://your-backend-domain.com'), // Replace with your actual backend URL
+            : 'https://careerdashboard-vwue.onrender.com'),), // Replace with your actual backend URL
   
   // Socket.IO URL
   socketUrl: process.env.NEXT_PUBLIC_SOCKET_URL || 
              (typeof window !== 'undefined' && window.location.origin.includes('localhost') 
                ? 'http://localhost:5000' 
-               : 'https://your-backend-domain.com'), // Replace with your actual backend URL
+               : 'https://careerdashboard-vwue.onrender.com'), // Replace with your actual backend URL), // Replace with your actual backend URL
   
   // Frontend URL
   frontendUrl: process.env.NEXT_PUBLIC_FRONTEND_URL || 
