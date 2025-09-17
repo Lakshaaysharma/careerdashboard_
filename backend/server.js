@@ -44,9 +44,8 @@ if (process.env.NODE_ENV === 'production') {
 } else {
 // Change this line:
 // allowedOrigins.push('https://your-frontend-domain.com');
-
-// To this:
 allowedOrigins.push('https://shapingcareer.com');
+allowedOrigins.push('https://careerdashboard.vercel.app');
 }
 
 // Socket.IO setup
