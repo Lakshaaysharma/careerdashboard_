@@ -14,6 +14,7 @@ import { GoogleAuth } from "@/components/ui/google-auth"
 import { StudentHierarchyForm } from "@/components/ui/student-hierarchy-form"
 import { TeacherHierarchyForm } from "@/components/ui/teacher-hierarchy-form"
 import { TrendingUp, AlertCircle } from "lucide-react"
+import { apiCall } from "@/lib/config"
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -103,11 +104,8 @@ export default function SignUpPage() {
       }
       console.log('Request data:', requestData)
       
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await apiCall('/api/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(requestData),
       })
 

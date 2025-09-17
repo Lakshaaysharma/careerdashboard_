@@ -31,15 +31,28 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
+// CORS configuration
+const allowedOrigins = [
+  process.env.CORS_ORIGIN || 'http://localhost:3000',
+  'http://localhost:3000'
+];
+
+// Add additional origins for production
+if (process.env.NODE_ENV === 'production') {
+  // Add your production frontend domains here
+  // allowedOrigins.push('https://your-frontend-domain.com');
+} else {
+// Change this line:
+// allowedOrigins.push('https://your-frontend-domain.com');
+
+// To this:
+allowedOrigins.push('https://shapingcareer.com');
+}
+
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.CORS_ORIGIN || 'http://localhost:3000',
-      'http://localhost:3000',
-      'file://',
-      'null'
-    ],
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -47,14 +60,8 @@ const io = new Server(server, {
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
 app.use(cors({
-  origin: [
-    process.env.CORS_ORIGIN || 'http://localhost:3000',
-    'http://localhost:3000',
-    'file://',
-    'null'
-  ],
+  origin: allowedOrigins,
   credentials: true
 }));
 

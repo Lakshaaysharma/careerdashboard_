@@ -46,6 +46,7 @@ import {
   AlertTriangle,
   Home,
 } from "lucide-react"
+import { apiCall, config } from "@/lib/config"
 
 export default function TeacherDashboard() {
   // All hooks at the top!
@@ -273,7 +274,7 @@ export default function TeacherDashboard() {
     setLoadingAssignments(true)
     try {
       console.log('Fetching assignments...')
-      const response = await fetch("http://localhost:5000/api/teachers/assignments/all", {
+      const response = await fetch("${config.apiUrl}/api/teachers/assignments/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -300,7 +301,7 @@ export default function TeacherDashboard() {
     setLoadingStudents(true)
     try {
       console.log('Fetching students with token:', !!token)
-      const response = await fetch("http://localhost:5000/api/teachers/students", {
+      const response = await fetch("${config.apiUrl}/api/teachers/students", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -325,7 +326,7 @@ export default function TeacherDashboard() {
     setLoadingEnrolledStudents(true)
     try {
       console.log('Fetching enrolled students for subject:', subjectName)
-      const response = await fetch(`http://localhost:5000/api/teachers/subjects/${encodeURIComponent(subjectName)}/students`, {
+      const response = await apiCall(`/api/teachers/subjects/${encodeURIComponent(subjectName)}/students`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -356,7 +357,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch('http://localhost:5000/api/teacher-chats/users', {
+      const response = await apiCall('/api/teacher-chats/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -383,7 +384,7 @@ export default function TeacherDashboard() {
            const token = localStorage.getItem('token')
            if (!token) return
        
-           const response = await fetch('http://localhost:5000/api/teacher-chats', {
+           const response = await apiCall('/api/teacher-chats', {
         headers: {
                'Authorization': `Bearer ${token}`,
                'Content-Type': 'application/json'
@@ -422,7 +423,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch('http://localhost:5000/api/teacher-chats', {
+      const response = await apiCall('/api/teacher-chats', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -462,7 +463,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch(`http://localhost:5000/api/messages/${chatId}`, {
+      const response = await apiCall(`/api/messages/${chatId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -488,7 +489,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch('http://localhost:5000/api/messages', {
+      const response = await apiCall('/api/messages', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -556,7 +557,7 @@ export default function TeacherDashboard() {
         // Fetch user data from API
         console.log("Fetching user data from API...")
         try {
-          const userResponse = await fetch("http://localhost:5000/api/auth/me", {
+          const userResponse = await fetch("${config.apiUrl}/api/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -581,7 +582,7 @@ export default function TeacherDashboard() {
         // Fetch teacher dashboard data
         console.log("Fetching teacher dashboard data...")
         try {
-          const teacherResponse = await fetch("http://localhost:5000/api/teachers/dashboard", {
+          const teacherResponse = await fetch("${config.apiUrl}/api/teachers/dashboard", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -604,7 +605,7 @@ export default function TeacherDashboard() {
         // Fetch teacher profile data (institute, class, section, batch year, courses)
         console.log("Fetching teacher profile data...")
         try {
-          const profileResponse = await fetch("http://localhost:5000/api/teacher-profiles/profile", {
+          const profileResponse = await fetch("${config.apiUrl}/api/teacher-profiles/profile", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -809,7 +810,7 @@ export default function TeacherDashboard() {
         return
       }
 
-      const response = await fetch("http://localhost:5000/api/teachers/assignments", {
+      const response = await fetch("${config.apiUrl}/api/teachers/assignments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -910,7 +911,7 @@ export default function TeacherDashboard() {
       }
 
       // Send update to backend
-      const response = await fetch("http://localhost:5000/api/teachers/subjects", {
+      const response = await fetch("${config.apiUrl}/api/teachers/subjects", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -986,7 +987,7 @@ export default function TeacherDashboard() {
       }
 
       // First, update the teacher profile with complete information
-      const profileResponse = await fetch("http://localhost:5000/api/teacher-profiles/profile", {
+      const profileResponse = await fetch("${config.apiUrl}/api/teacher-profiles/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1018,7 +1019,7 @@ export default function TeacherDashboard() {
       }
 
       // Then, update the subjects (keeping the existing logic for backward compatibility)
-      const subjectsResponse = await fetch("http://localhost:5000/api/teachers/subjects", {
+      const subjectsResponse = await fetch("${config.apiUrl}/api/teachers/subjects", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1177,7 +1178,7 @@ export default function TeacherDashboard() {
         return
       }
 
-      const response = await fetch('http://localhost:5000/api/teachers/subjects/pricing', {
+      const response = await apiCall('/api/teachers/subjects/pricing', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1374,7 +1375,7 @@ export default function TeacherDashboard() {
         return
       }
 
-      const response = await fetch("http://localhost:5000/api/teachers/generate-quiz", {
+      const response = await fetch("${config.apiUrl}/api/teachers/generate-quiz", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1439,7 +1440,7 @@ export default function TeacherDashboard() {
       }
 
       // Fetch teacher profile data to get updated hierarchy information
-      const profileResponse = await fetch("http://localhost:5000/api/teacher-profiles/profile", {
+      const profileResponse = await fetch("${config.apiUrl}/api/teacher-profiles/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -1472,7 +1473,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem("token")
       if (!token) return
 
-      const response = await fetch(`http://localhost:5000/api/attendance/stats/${courseId}`, {
+      const response = await apiCall(`/api/attendance/stats/${courseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -1494,7 +1495,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem("token")
       if (!token) return
 
-      const response = await fetch("http://localhost:5000/api/attendance", {
+      const response = await fetch("${config.apiUrl}/api/attendance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1551,7 +1552,7 @@ export default function TeacherDashboard() {
       const attendancePromises = bulkAttendanceData
         .filter(student => student.attendanceStatus)
         .map(student => 
-          fetch("http://localhost:5000/api/attendance", {
+          fetch("${config.apiUrl}/api/attendance", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

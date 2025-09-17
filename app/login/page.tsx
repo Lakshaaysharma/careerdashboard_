@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { GoogleAuth } from "@/components/ui/google-auth"
 import { TrendingUp, Mail, Lock, User, AlertCircle } from "lucide-react"
+import { apiCall } from "@/lib/config"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -30,11 +31,8 @@ export default function LoginPage() {
     console.log('Login attempt with:', { email, role })
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await apiCall('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ email, password, role }),
       })
 

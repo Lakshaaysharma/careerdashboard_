@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { apiCall } from "@/lib/config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -161,7 +162,7 @@ export default function StudentDashboard() {
       }
       
       // Fetch user data
-      const userResponse = await fetch("http://localhost:5000/api/auth/me", {
+      const userResponse = await apiCall("/api/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -172,7 +173,7 @@ export default function StudentDashboard() {
         setUser(userData.data)
         
         // Fetch student dashboard data
-        const studentResponse = await fetch("http://localhost:5000/api/students/dashboard", {
+        const studentResponse = await apiCall("/api/students/dashboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -227,7 +228,7 @@ export default function StudentDashboard() {
         setError("")
         try {
           const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-          const res = await fetch(`http://localhost:5000/api/attendance/student/${studentId}/subjects-summary`, {
+          const res = await apiCall(`/api/attendance/student/${studentId}/subjects-summary`, {
             headers: {
               'Authorization': token ? `Bearer ${token}` : ''
             }
@@ -305,7 +306,7 @@ export default function StudentDashboard() {
     setLoadingAssignments(true)
     try {
       // Fetch available assignments
-      const availableResponse = await fetch("http://localhost:5000/api/students/assignments/available", {
+      const availableResponse = await apiCall("/api/students/assignments/available", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -318,7 +319,7 @@ export default function StudentDashboard() {
       }
 
       // Fetch assignment history
-      const historyResponse = await fetch("http://localhost:5000/api/students/assignments/history", {
+      const historyResponse = await apiCall("/api/students/assignments/history", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -338,7 +339,7 @@ export default function StudentDashboard() {
   const fetchAvailableCourses = async (token: string) => {
     setLoadingCourses(true)
     try {
-      const response = await fetch("http://localhost:5000/api/students/courses/available", {
+      const response = await apiCall("/api/students/courses/available", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -361,7 +362,7 @@ export default function StudentDashboard() {
 
   const fetchEnrolledCourses = async (token: string) => {
     try {
-      const response = await fetch("http://localhost:5000/api/enrollments/my-courses", {
+      const response = await apiCall("/api/enrollments/my-courses", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -381,7 +382,7 @@ export default function StudentDashboard() {
   const fetchMentors = async () => {
     setLoadingMentors(true)
     try {
-      const response = await fetch("http://localhost:5000/api/mentors", {
+      const response = await apiCall("/api/mentors", {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -428,7 +429,7 @@ export default function StudentDashboard() {
         pointsEarned,
       })
 
-      const response = await fetch("http://localhost:5000/api/students/assignments/submit", {
+      const response = await apiCall("/api/students/assignments/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -585,7 +586,7 @@ export default function StudentDashboard() {
         pointsEarned,
       })
 
-      const response = await fetch("http://localhost:5000/api/students/assignments/submit", {
+      const response = await apiCall("/api/students/assignments/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -701,7 +702,7 @@ export default function StudentDashboard() {
           return
         }
 
-        const response = await fetch("http://localhost:5000/api/enrollments/enroll", {
+        const response = await apiCall("/api/enrollments/enroll", {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -739,7 +740,7 @@ export default function StudentDashboard() {
       const token = localStorage.getItem("token")
       if (!token) return
 
-      const response = await fetch("http://localhost:5000/api/students/init-test-data", {
+      const response = await apiCall("/api/students/init-test-data", {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -867,7 +868,7 @@ export default function StudentDashboard() {
         console.log('FormData entry:', key, value);
       }
 
-      const response = await fetch("http://localhost:5000/api/students/assignments/submit-homework", {
+      const response = await apiCall("/api/students/assignments/submit-homework", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

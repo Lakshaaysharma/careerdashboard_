@@ -22,6 +22,7 @@ import {
   Download
 } from "lucide-react"
 import { io, Socket } from 'socket.io-client'
+import { apiCall, config } from '@/lib/config'
 
 interface Message {
   _id?: string
@@ -142,7 +143,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
         return
       }
 
-      const response = await fetch('http://localhost:5000/api/chats', {
+      const response = await apiCall('/api/chats', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -170,7 +171,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
       if (!token) return
 
       console.log('Fetching users from API...')
-      const response = await fetch('http://localhost:5000/api/chats/users', {
+      const response = await apiCall('/api/chats/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -201,7 +202,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
 
       console.log('Fetching messages for chat:', chatId)
 
-      const response = await fetch(`http://localhost:5000/api/messages/${chatId}`, {
+      const response = await apiCall(`/api/messages/${chatId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -251,7 +252,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch('http://localhost:5000/api/chats', {
+      const response = await apiCall('/api/chats', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -302,7 +303,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   // Initialize socket connection
   useEffect(() => {
     if (open) {
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io(config.socketUrl);
       setSocket(newSocket);
 
       // Join with user ID
@@ -362,7 +363,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
       console.log('Sending message with selectedChat:', selectedChat)
       console.log('Chat ID being sent:', selectedChat.id)
 
-      const response = await fetch('http://localhost:5000/api/messages', {
+      const response = await apiCall('/api/messages', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -552,7 +553,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
       formData.append('file', file)
       formData.append('chatId', selectedChat?.id || '')
 
-      const response = await fetch('http://localhost:5000/api/messages/file', {
+      const response = await apiCall('/api/messages/file', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -872,10 +873,10 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                                {msg?.messageType === 'image' ? (
                                  <div className="space-y-2">
                                    <img 
-                                     src={`http://localhost:5000${msg.file?.url}`} 
+                                     src={`${config.apiUrl}${msg.file?.url}`} 
                                      alt="Shared image"
                                      className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                     onClick={() => window.open(`http://localhost:5000${msg.file?.url}`, '_blank')}
+                                     onClick={() => window.open(`${config.apiUrl}${msg.file?.url}`, '_blank')}
                                    />
                                    <p className="text-xs text-gray-300">{msg.file?.originalName}</p>
                                  </div>
@@ -895,7 +896,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                                      <Button
                                        size="sm"
                                        variant="ghost"
-                                       onClick={() => window.open(`http://localhost:5000${msg.file?.url}`, '_blank')}
+                                       onClick={() => window.open(`${config.apiUrl}${msg.file?.url}`, '_blank')}
                                        className="text-blue-400 hover:text-blue-300"
                                      >
                                        <Download className="w-4 h4" />
