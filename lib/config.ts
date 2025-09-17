@@ -1,16 +1,34 @@
 // Environment configuration for API endpoints
+const getApiUrl = () => {
+  if (typeof window === 'undefined') {
+    // Server-side: use environment variable or default
+    return process.env.NEXT_PUBLIC_API_URL || 'https://careerdashboard-vwue.onrender.com'
+  }
+  // Client-side: check if we're on localhost
+  if (window.location.origin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  return 'https://careerdashboard-vwue.onrender.com'
+}
+
+const getSocketUrl = () => {
+  if (typeof window === 'undefined') {
+    // Server-side: use environment variable or default
+    return process.env.NEXT_PUBLIC_SOCKET_URL || 'https://careerdashboard-vwue.onrender.com'
+  }
+  // Client-side: check if we're on localhost
+  if (window.location.origin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  return 'https://careerdashboard-vwue.onrender.com'
+}
+
 export const config = {
   // API Base URL - automatically detects environment
-  apiUrl: process.env.NEXT_PUBLIC_API_URL || 
-          (typeof window !== 'undefined' && window.location.origin.includes('localhost') 
-            ? 'http://localhost:5000' 
-            : 'https://careerdashboard-vwue.onrender.com'), // Replace with your actual backend URL
+  apiUrl: getApiUrl(),
   
   // Socket.IO URL
-  socketUrl: process.env.NEXT_PUBLIC_SOCKET_URL || 
-             (typeof window !== 'undefined' && window.location.origin.includes('localhost') 
-               ? 'http://localhost:5000' 
-               : 'https://careerdashboard-vwue.onrender.com'), // Replace with your actual backend URL), // Replace with your actual backend URL
+  socketUrl: getSocketUrl(),
   
   // Frontend URL
   frontendUrl: process.env.NEXT_PUBLIC_FRONTEND_URL || 
