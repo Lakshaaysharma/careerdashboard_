@@ -47,6 +47,8 @@ import {
   BookOpen,
   Cpu,
   PieChart,
+  Menu,
+  X,
 } from "lucide-react"
 
 export default function HomePage() {
@@ -60,6 +62,7 @@ export default function HomePage() {
   const [selectedMentor, setSelectedMentor] = useState<any>(null)
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false)
   const [showMentorDialog, setShowMentorDialog] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
 
   useEffect(() => {
@@ -517,85 +520,159 @@ export default function HomePage() {
         ></div>
       </div>
 
-      {/* Enhanced Header */}
+      {/* Enhanced Responsive Header */}
       <header
         className={`relative z-50 glass-card border-b border-white/10 transition-all duration-1000 ${isVisible ? "slide-up-animation" : "opacity-0"}`}
       >
-        <div className="container mx-auto px-6 py-8 flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="relative group">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center neon-glow float-animation group-hover:scale-110 transition-transform duration-300">
-                <TrendingUp className="w-8 h-8 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between lg:hidden">
+            <div className="flex items-center space-x-3">
+              <div className="relative group">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
               </div>
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full animate-pulse border-2 border-black"></div>
-              <div className="absolute -bottom-2 -right-2 orbit-element">
-                <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold gradient-text">SHAPINGcareer</h1>
+                <p className="text-gray-400 text-xs sm:text-sm hidden sm:block">Transform Your Future</p>
               </div>
             </div>
-            <div>
-              <h1 className="text-5xl font-bold gradient-text text-glow">SHAPINGcareer</h1>
-             {/* <p className="text-sm text-gray-400 font-medium">AI-Powered Career Intelligence Platform</p>*/}
-             {/* {studentId && (
-                <div className="flex items-center mt-2">
-                  <Badge className="bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-300 border-green-500/30">
-                    <User className="w-3 h-3 mr-1" />
-                    Student ID: {studentId}
-                  </Badge>
-                </div>
-              )}*/}
+            
+            {/* Mobile Menu Toggle & Buttons */}
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+              <Link href="/login" className="hidden sm:block">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-400 hover:bg-blue-500/10 px-3 py-2 text-sm border border-blue-500/50"
+                >
+                  Login
+                </Button>
+              </Link>
+              <Link href="/signup" className="hidden sm:block">
+                <Button size="sm" className="btn-primary text-sm px-4 py-2">
+                  Sign Up
+                </Button>
+              </Link>
             </div>
           </div>
-          <nav className="flex items-center space-x-8">
-            <Link href="/internships">
-              <Button
-                variant="ghost"
-                className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300 group text-lg px-6 py-3"
-              >
-                <Sparkles className="w-5 h-5 mr-3 group-hover:animate-spin" />
-                Internships
-              </Button>
-            </Link>
-            <Link href="/jobs">
-              <Button
-                variant="ghost"
-                className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300 group text-lg px-6 py-3"
-              >
-                <Rocket className="w-5 h-5 mr-3 group-hover:animate-bounce" />
-                Jobs
-              </Button>
-            </Link>
-            <Link href="/mentors">
-              <Button
-                variant="ghost"
-                className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300 group text-lg px-6 py-3"
-              >
-                <Users className="w-5 h-5 mr-3 group-hover:animate-pulse" />
-                Mentors
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button
-                variant="outline"
-                className="border-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 bg-transparent transition-all duration-300 hover-glow text-lg px-6 py-3"
-              >
-                Login
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="btn-primary text-lg px-8 py-3 hover-scale">
-                Sign Up
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-          </nav>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden mt-4 pb-4 border-t border-white/10 pt-4">
+              <nav className="flex flex-col space-y-2">
+                <Link href="/internships" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10">
+                    <Sparkles className="w-4 h-4 mr-3" />
+                    Internships
+                  </Button>
+                </Link>
+                <Link href="/jobs" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10">
+                    <Rocket className="w-4 h-4 mr-3" />
+                    Jobs
+                  </Button>
+                </Link>
+                <Link href="/mentors" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10">
+                    <Users className="w-4 h-4 mr-3" />
+                    Mentors
+                  </Button>
+                </Link>
+                <div className="flex space-x-2 pt-2">
+                  <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full text-blue-400 border-blue-500/50">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/signup" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full btn-primary">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
+              </nav>
+            </div>
+          )}
+
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <div className="relative group">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center neon-glow float-animation group-hover:scale-110 transition-transform duration-300">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full animate-pulse border-2 border-black"></div>
+                <div className="absolute -bottom-2 -right-2 orbit-element">
+                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                </div>
+              </div>
+              <div>
+                <h1 className="text-5xl font-bold gradient-text text-glow">SHAPINGcareer</h1>
+              </div>
+            </div>
+            
+            <nav className="flex items-center space-x-8">
+              <Link href="/internships">
+                <Button
+                  variant="ghost"
+                  className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300 group text-lg px-6 py-3"
+                >
+                  <Sparkles className="w-5 h-5 mr-3 group-hover:animate-spin" />
+                  Internships
+                </Button>
+              </Link>
+              <Link href="/jobs">
+                <Button
+                  variant="ghost"
+                  className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300 group text-lg px-6 py-3"
+                >
+                  <Rocket className="w-5 h-5 mr-3 group-hover:animate-bounce" />
+                  Jobs
+                </Button>
+              </Link>
+              <Link href="/mentors">
+                <Button
+                  variant="ghost"
+                  className="text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300 group text-lg px-6 py-3"
+                >
+                  <Users className="w-5 h-5 mr-3 group-hover:animate-pulse" />
+                  Mentors
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="border-2 border-blue-500/50 text-blue-400 hover:bg-blue-500/10 bg-transparent transition-all duration-300 hover-glow text-lg px-6 py-3"
+                >
+                  Login
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="btn-primary text-lg px-8 py-3 hover-scale">
+                  Sign Up
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </nav>
+          </div>
         </div>
       </header>
 
-      {/* Enhanced Hero Section */}
-      <section className="relative z-10 py-40 px-6">
+      {/* Enhanced Responsive Hero Section */}
+      <section className="relative z-10 py-20 sm:py-32 lg:py-40 px-4 sm:px-6">
         <div className="container mx-auto text-center">
           <div
-            className={`mb-12 transition-all duration-1000 delay-300 ${isVisible ? "slide-up-animation" : "opacity-0 translate-y-10"}`}
+            className={`mb-8 sm:mb-12 transition-all duration-1000 delay-300 ${isVisible ? "slide-up-animation" : "opacity-0 translate-y-10"}`}
           >
            {/* <Badge className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border-blue-500/30 mb-8 text-xl px-8 py-4 hover-lift shimmer-effect">
               <Brain className="w-6 h-6 mr-3" />
@@ -607,48 +684,48 @@ export default function HomePage() {
           <div
             className={`transition-all duration-1000 delay-500 ${isVisible ? "scale-in-animation" : "opacity-0 scale-95"}`}
           >
-            <h2 className="text-9xl font-bold mb-12 leading-tight text-shadow">
-                              Shape Your Career with <span className="gradient-text typewriter block mt-4">Intelligence</span>
+            <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold mb-6 sm:mb-8 lg:mb-12 leading-tight text-shadow">
+              Shape Your Career with <span className="gradient-text typewriter block mt-2 sm:mt-4">Intelligence</span>
             </h2>
           </div>
 
           <div
             className={`transition-all duration-1000 delay-700 ${isVisible ? "slide-up-animation" : "opacity-0 translate-y-10"}`}
           >
-            <p className="text-3xl text-gray-300 mb-16 max-w-5xl mx-auto leading-relaxed font-light">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 sm:mb-12 lg:mb-16 max-w-5xl mx-auto leading-relaxed font-light px-4">
               Discover your potential through AI-powered assessments, connect with industry mentors, find exclusive
               opportunities, and build the skills you need to dominate tomorrow's job market.
             </p>
           </div>
 
           <div
-            className={`flex flex-col sm:flex-row gap-10 justify-center transition-all duration-1000 delay-1000 ${isVisible ? "bounce-in-animation" : "opacity-0"}`}
+            className={`flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-10 justify-center transition-all duration-1000 delay-1000 ${isVisible ? "bounce-in-animation" : "opacity-0"}`}
           >
-            <Link href="/choose-field">
-              <Button size="lg" className="btn-primary text-2xl px-16 py-8 hover-scale group relative overflow-hidden">
+            <Link href="/choose-field" className="w-full sm:w-auto">
+              <Button size="lg" className="btn-primary w-full sm:w-auto text-lg sm:text-xl lg:text-2xl px-8 sm:px-12 lg:px-16 py-4 sm:py-6 lg:py-8 hover-scale group relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <Target className="w-7 h-7 mr-4 group-hover:animate-spin relative z-10" />
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mr-2 sm:mr-4 group-hover:animate-spin relative z-10" />
                 <span className="relative z-10">Unlock Your Potential</span>
-                <Sparkles className="w-6 h-6 ml-4 relative z-10" />
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ml-2 sm:ml-4 relative z-10" />
               </Button>
             </Link>
-            <Link href="/startup-ideas">
+            <Link href="/startup-ideas" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="border-3 border-orange-500/50 text-orange-400 hover:bg-orange-500/10 bg-transparent text-2xl px-16 py-8 hover-scale group relative overflow-hidden"
+                className="w-full sm:w-auto border-3 border-orange-500/50 text-orange-400 hover:bg-orange-500/10 bg-transparent text-lg sm:text-xl lg:text-2xl px-8 sm:px-12 lg:px-16 py-4 sm:py-6 lg:py-8 hover-scale group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <Lightbulb className="w-7 h-7 mr-4 group-hover:animate-pulse relative z-10" />
+                <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mr-2 sm:mr-4 group-hover:animate-pulse relative z-10" />
                 <span className="relative z-10">Team Up for a Startup</span>
               </Button>
             </Link>
           </div>
 
           {/* Trusted by Companies */}
-          <div className="mt-24">
-            <p className="text-xl text-gray-400 mb-12 font-medium">Trusted by students at top companies</p>
-            <div className="flex flex-wrap justify-center items-center gap-12">
+          <div className="mt-12 sm:mt-16 lg:mt-24">
+            <p className="text-lg sm:text-xl text-gray-400 mb-8 sm:mb-12 font-medium">Trusted by students at top companies</p>
+            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 lg:gap-12">
               {companies.map((company, index) => (
                 <div
                   key={index}
@@ -666,14 +743,14 @@ export default function HomePage() {
 
       
 
-      {/* Minimal Course Categories Section */}
-      <section className="relative z-10 py-24 px-6">
+      {/* Responsive Course Categories Section */}
+      <section className="relative z-10 py-16 sm:py-20 lg:py-24 px-4 sm:px-6">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h3 className="text-5xl font-bold gradient-text mb-3">Learning Domains</h3>
-            <p className="text-lg text-gray-300">Explore categories and start learning</p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold gradient-text mb-3">Learning Domains</h3>
+            <p className="text-base sm:text-lg text-gray-300">Explore categories and start learning</p>
           </div>
-          <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {courseCategories.map((cat, idx) => (
               <Link key={idx} href={cat.href} className="block">
                 <div className={`rounded-2xl ${cat.color} hover:opacity-90 transition-opacity shadow-lg p-8 flex items-center justify-center h-32 glass-card-hover`}>
@@ -688,26 +765,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced Stats Section */}
-      <section className="relative z-10 py-32 px-6">
+      {/* Enhanced Responsive Stats Section */}
+      <section className="relative z-10 py-20 sm:py-24 lg:py-32 px-4 sm:px-6">
         <div className="container mx-auto">
-          <div className="text-center mb-20">
-            <h3 className="text-6xl font-bold gradient-text mb-6">Proven Results</h3>
-            <p className="text-2xl text-gray-300">Real impact on real careers</p>
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <h3 className="text-4xl sm:text-5xl lg:text-6xl font-bold gradient-text mb-4 sm:mb-6">Proven Results</h3>
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-300">Real impact on real careers</p>
           </div>
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {stats.map((stat, index) => (
               <Card key={index} className="glass-card-hover text-center group relative overflow-hidden">
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
                 ></div>
-                <CardContent className="pt-12 pb-8 relative z-10">
+                <CardContent className="pt-8 sm:pt-12 pb-6 sm:pb-8 relative z-10">
                   <div
-                    className={`w-20 h-20 bg-gradient-to-r ${stat.color} rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:neon-glow transition-all duration-300 group-hover:scale-110`}
+                    className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r ${stat.color} rounded-3xl mx-auto mb-4 sm:mb-6 flex items-center justify-center group-hover:neon-glow transition-all duration-300 group-hover:scale-110`}
                   >
-                    <stat.icon className="w-10 h-10 text-white" />
+                    <stat.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
-                  <div className="text-6xl font-bold gradient-text mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-4xl sm:text-5xl lg:text-6xl font-bold gradient-text mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
                     <AnimatedCounter
                       end={stat.value}
                       prefix={stat.prefix}
@@ -715,7 +792,7 @@ export default function HomePage() {
                       duration={2000 + index * 200}
                     />
                   </div>
-                  <p className="text-gray-400 text-xl font-medium">{stat.label}</p>
+                  <p className="text-gray-400 text-lg sm:text-xl font-medium">{stat.label}</p>
                 </CardContent>
               </Card>
             ))}
@@ -723,21 +800,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Courses Taught by Our Teachers (Frontend-only, hardcoded) */}
-      <section className="relative z-10 py-32 px-6">
+      {/* Responsive Courses Section */}
+      <section className="relative z-10 py-20 sm:py-24 lg:py-32 px-4 sm:px-6">
         <div className="container mx-auto">
-          <div className="text-center mb-20">
-            <Badge className="bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-300 border-green-500/30 mb-8 text-xl px-8 py-4">
-              <GraduationCap className="w-6 h-6 mr-3" />
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge className="bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-300 border-green-500/30 mb-6 sm:mb-8 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4">
+              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
               Learn From Our Teachers
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 ml-2 sm:ml-3" />
             </Badge>
-            <h3 className="text-7xl font-bold mb-8 gradient-text text-glow">Courses Taught by Our Teachers</h3>
-            <p className="text-3xl text-gray-300 max-w-5xl mx-auto leading-relaxed">
+            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 gradient-text text-glow">Courses Taught by Our Teachers</h3>
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 max-w-5xl mx-auto leading-relaxed px-4">
               Explore top courses curated and taught by experienced industry professionals.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
             {teacherCourses.map((item) => (
               <Card key={item.id} className="glass-card-hover group relative overflow-hidden">
                 <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
@@ -803,51 +881,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced Testimonials Carousel */}
-     <section className="relative z-10 py-32 px-6">
+      {/* Enhanced Responsive Testimonials Carousel */}
+      <section className="relative z-10 py-20 sm:py-24 lg:py-32 px-4 sm:px-6">
         <div className="container mx-auto">
-          <div className="text-center mb-20">
-         <Badge className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border-yellow-500/30 mb-8 text-xl px-8 py-4">
-              <Star className="w-6 h-6 mr-3" />
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border-yellow-500/30 mb-6 sm:mb-8 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4">
+              <Star className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
               Success Stories
             </Badge>
-            <h3 className="text-7xl font-bold mb-8 gradient-text text-glow">Real Results, Real People</h3>
-                            <p className="text-2xl text-gray-300">Hear from our community of successful career shapers</p>
+            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 gradient-text text-glow">Real Results, Real People</h3>
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 px-4">Hear from our community of successful career shapers</p>
           </div>
 
           <div className="relative max-w-6xl mx-auto">
-            <div className="glass-card p-12 rounded-3xl hover-lift">
-              <div className="flex items-center justify-center mb-12">
+            <div className="glass-card p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl hover-lift">
+              <div className="flex items-center justify-center mb-8 sm:mb-12">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className="w-10 h-10 text-yellow-400 fill-current mx-2 hover:scale-110 transition-transform duration-300"
+                    className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-yellow-400 fill-current mx-1 sm:mx-2 hover:scale-110 transition-transform duration-300"
                   />
                 ))}
               </div>
 
               <div className="text-center">
-                <div className="relative mb-8">
-                  <div className="w-28 h-28 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mb-8 flex items-center justify-center text-3xl font-bold text-white neon-glow hover-scale">
+                <div className="relative mb-6 sm:mb-8">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mb-6 sm:mb-8 flex items-center justify-center text-xl sm:text-2xl lg:text-3xl font-bold text-white neon-glow hover-scale">
                     {testimonials[currentTestimonial].image}
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-white" />
+                  <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
                   </div>
                 </div>
 
-                <blockquote className="text-3xl text-gray-300 mb-8 italic leading-relaxed font-light max-w-4xl mx-auto">
+                <blockquote className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-6 sm:mb-8 italic leading-relaxed font-light max-w-4xl mx-auto px-4">
                   "{testimonials[currentTestimonial].content}"
                 </blockquote>
 
-                <div className="space-y-4">
-                  <h4 className="text-2xl font-bold text-white">{testimonials[currentTestimonial].name}</h4>
-                  <p className="text-xl text-gray-400">{testimonials[currentTestimonial].role}</p>
-                  <div className="flex items-center justify-center space-x-4">
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xl px-6 py-3">
+                <div className="space-y-3 sm:space-y-4">
+                  <h4 className="text-xl sm:text-2xl font-bold text-white">{testimonials[currentTestimonial].name}</h4>
+                  <p className="text-lg sm:text-xl text-gray-400">{testimonials[currentTestimonial].role}</p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-lg sm:text-xl px-4 sm:px-6 py-2 sm:py-3">
                       {testimonials[currentTestimonial].salary}
                     </Badge>
-                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-xl px-6 py-3">
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-lg sm:text-xl px-4 sm:px-6 py-2 sm:py-3">
                       {testimonials[currentTestimonial].company}
                     </Badge>
                   </div>
@@ -870,61 +948,61 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced CTA Section */}
-      <section className="relative z-10 py-40 px-6">
+      {/* Enhanced Responsive CTA Section */}
+      <section className="relative z-10 py-20 sm:py-32 lg:py-40 px-4 sm:px-6">
         <div className="container mx-auto text-center">
           <div className="gradient-border max-w-6xl mx-auto hover-lift">
-            <div className="gradient-border-content p-16">
-                              <h3 className="text-7xl font-bold gradient-text mb-8 text-glow">Ready to Shape Your Career?</h3>
-              <p className="text-3xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+            <div className="gradient-border-content p-8 sm:p-12 lg:p-16">
+              <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold gradient-text mb-6 sm:mb-8 text-glow">Ready to Shape Your Career?</h3>
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4">
                 Join thousands of students who have transformed their careers with our AI-powered platform.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-8 justify-center mb-12">
-                <Link href="/signup">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 justify-center mb-8 sm:mb-12">
+                <Link href="/signup" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="btn-primary text-2xl px-16 py-8 hover-scale group relative overflow-hidden"
+                    className="btn-primary w-full sm:w-auto text-lg sm:text-xl lg:text-2xl px-8 sm:px-12 lg:px-16 py-4 sm:py-6 lg:py-8 hover-scale group relative overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <Rocket className="w-7 h-7 mr-4 relative z-10" />
+                    <Rocket className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mr-2 sm:mr-4 relative z-10" />
                     <span className="relative z-10">Get Started Today</span>
                   </Button>
                 </Link>
-                <Link href="/choose-field">
+                <Link href="/choose-field" className="w-full sm:w-auto">
                   <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-3 border-white/20 text-white hover:bg-white/10 bg-transparent text-2xl px-16 py-8 hover-scale group"
-                >
-                  <Brain className="w-7 h-7 mr-4" />
-                  Unlock Your Potential
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto border-3 border-white/20 text-white hover:bg-white/10 bg-transparent text-lg sm:text-xl lg:text-2xl px-8 sm:px-12 lg:px-16 py-4 sm:py-6 lg:py-8 hover-scale group"
+                  >
+                    <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mr-2 sm:mr-4" />
+                    Unlock Your Potential
                   </Button>
                 </Link>
               </div>
 
-              <div className="flex items-center justify-center space-x-12 text-lg text-gray-400">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-12 text-sm sm:text-base lg:text-lg text-gray-400">
                 <div className="flex items-center hover-scale">
-                  <Shield className="w-6 h-6 mr-3 text-green-400" />
-                  100% Secure
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-green-400" />
+                  <span className="whitespace-nowrap">100% Secure</span>
                 </div>
                 <div className="flex items-center hover-scale">
-                  <Clock className="w-6 h-6 mr-3 text-blue-400" />
-                  Setup in 2 minutes
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-400" />
+                  <span className="whitespace-nowrap">Setup in 2 minutes</span>
                 </div>
                 <div className="flex items-center hover-scale">
-                  <Globe className="w-6 h-6 mr-3 text-purple-400" />
-                  Used by 50k+ students
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-purple-400" />
+                  <span className="whitespace-nowrap">Used by 50k+ students</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section> 
-      {/* Enhanced Footer */}
-      <footer className="relative z-10 glass-card border-t border-white/10 py-20 px-6 mt-32">
+      {/* Enhanced Responsive Footer */}
+      <footer className="relative z-10 glass-card border-t border-white/10 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 mt-20 sm:mt-24 lg:mt-32">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center neon-glow">

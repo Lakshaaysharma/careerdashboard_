@@ -59,50 +59,89 @@ export default function StartupIdeasGalleryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+      {/* Responsive Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between lg:hidden">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shaping Career</h1>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="text-sm px-3 py-2">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-sm px-3 py-2">Sign Up</Button>
+              </Link>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">CareerLaunch</h1>
-          </Link>
-          <nav className="flex items-center space-x-4">
-            <Link href="/startup-ideas"><Button variant="outline">Submit Idea</Button></Link>
-            <Link href="/login"><Button variant="outline">Login</Button></Link>
-            <Link href="/signup"><Button className="bg-gradient-to-r from-blue-600 to-indigo-600">Sign Up</Button></Link>
-          </nav>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Shaping Career</h1>
+            </Link>
+            <nav className="flex items-center space-x-4">
+              <Link href="/startup-ideas"><Button variant="outline">Submit Idea</Button></Link>
+              <Link href="/login"><Button variant="outline">Login</Button></Link>
+              <Link href="/signup"><Button className="bg-gradient-to-r from-blue-600 to-indigo-600">Sign Up</Button></Link>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <Lightbulb className="w-10 h-10 text-white" />
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
+        {/* Responsive Page Header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-orange-400 to-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <Lightbulb className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Startup Ideas Gallery</h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">Discover innovative startup ideas from entrepreneurs around the world.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Startup Ideas Gallery</h1>
+          <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto px-4">Discover innovative startup ideas from entrepreneurs around the world.</p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        {/* Responsive Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="text-center"><CardContent className="pt-6"><Lightbulb className="w-8 h-8 text-orange-600 mx-auto mb-2" /><div className="text-2xl font-bold">{loading ? '...' : stats.totalIdeas}</div><p className="text-sm text-gray-600">Total Ideas</p></CardContent></Card>
           <Card className="text-center"><CardContent className="pt-6"><DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" /><div className="text-2xl font-bold">{loading ? '...' : `$${stats.totalFunding}K+`}</div><p className="text-sm text-gray-600">Total Funding</p></CardContent></Card>
           <Card className="text-center"><CardContent className="pt-6"><Users className="w-8 h-8 text-blue-600 mx-auto mb-2" /><div className="text-2xl font-bold">{loading ? '...' : stats.totalTeamMembers}</div><p className="text-sm text-gray-600">Team Members</p></CardContent></Card>
           <Card className="text-center"><CardContent className="pt-6"><Rocket className="w-8 h-8 text-purple-600 mx-auto mb-2" /><div className="text-2xl font-bold">{loading ? '...' : stats.fundedIdeas}</div><p className="text-sm text-gray-600">Funded Ideas</p></CardContent></Card>
         </div>
 
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl flex items-center"><Search className="w-5 h-5 mr-2" />Search & Filter Ideas</CardTitle>
-              <Button variant="outline" onClick={clearFilters} size="sm">Clear Filters</Button>
+        {/* Responsive Search & Filter */}
+        <Card className="mb-6 sm:mb-8">
+          <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+              <CardTitle className="text-lg sm:text-xl flex items-center">
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                Search & Filter Ideas
+              </CardTitle>
+              <Button variant="outline" onClick={clearFilters} size="sm" className="self-start sm:self-auto">
+                Clear Filters
+              </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="md:col-span-2"><Input placeholder="Search ideas, founders, or descriptions..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full" /></div>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-2">
+                <Input 
+                  placeholder="Search ideas, founders, or descriptions..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  className="w-full h-10 sm:h-12" 
+                />
+              </div>
               <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
-                <SelectTrigger><SelectValue placeholder="Industry" /></SelectTrigger>
+                <SelectTrigger className="h-10 sm:h-12">
+                  <SelectValue placeholder="Industry" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Industries</SelectItem>
                   <SelectItem value="technology">Technology</SelectItem>
@@ -116,12 +155,22 @@ export default function StartupIdeasGalleryPage() {
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-between mb-6"><p className="text-gray-600">Showing {filteredIdeas.length} of {startupIdeas.length} ideas</p><div className="flex items-center space-x-2"><Filter className="w-4 h-4 text-gray-500" /><span className="text-sm text-gray-500">Filtered Results</span></div></div>
+        {/* Responsive Results Counter */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-4">
+          <p className="text-gray-600 text-sm sm:text-base">Showing {filteredIdeas.length} of {startupIdeas.length} ideas</p>
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <span className="text-sm text-gray-500">Filtered Results</span>
+          </div>
+        </div>
 
         {loading ? (
-          <div className="text-center py-12"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div><p className="text-gray-600">Loading startup ideas...</p></div>
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 text-sm sm:text-base">Loading startup ideas...</p>
+          </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredIdeas.map((idea: any) => (
               <Card key={idea._id} className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>

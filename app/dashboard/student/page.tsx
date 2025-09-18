@@ -17,7 +17,6 @@ import { FloatingParticles } from "@/components/ui/floating-particles"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChatDialog } from "@/components/ui/chat-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Calendar } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -100,6 +99,7 @@ export default function StudentDashboard() {
   const [quizCompleted, setQuizCompleted] = useState(false)
   const [quizTimeLeft, setQuizTimeLeft] = useState(0)
   const [quizTimer, setQuizTimer] = useState<NodeJS.Timeout | null>(null)
+  const [quizStartTime, setQuizStartTime] = useState<number | null>(null)
 
   // File upload state for homework
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
@@ -155,19 +155,29 @@ export default function StudentDashboard() {
     setError("")
     try {
       const token = localStorage.getItem("token")
+      console.log('Student Dashboard: Token exists:', !!token)
+      console.log('Student Dashboard: Token preview:', token ? token.substring(0, 20) + '...' : 'No token')
+      
       if (!token) {
         setError("Not authenticated. Please log in.")
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 2000)
         setLoading(false)
         return
       }
       
       // Fetch user data
+      console.log('Student Dashboard: Fetching user data...')
       const userResponse = await apiCall("/api/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
+      console.log('Student Dashboard: User response status:', userResponse.status)
       const userData = await userResponse.json()
+      console.log('Student Dashboard: User data response:', userData)
       
       if (userResponse.ok && userData.success) {
         setUser(userData.data)
@@ -205,9 +215,22 @@ export default function StudentDashboard() {
         // Fetch enrolled courses
         await fetchEnrolledCourses(token)
       } else {
-        setError(userData.message || "Failed to fetch user data.")
+        console.log('Student Dashboard: Authentication failed:', userData)
+        // If authentication failed, clear invalid token and redirect to login
+        if (userResponse.status === 401 || userData.message?.includes('Invalid token') || userData.message?.includes('Unauthorized')) {
+          console.log('Student Dashboard: Clearing invalid token and redirecting to login')
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          setTimeout(() => {
+            window.location.href = '/login'
+          }, 2000)
+          setError("Session expired. Redirecting to login...")
+        } else {
+          setError(userData.message || "Failed to fetch user data.")
+        }
       }
     } catch (err) {
+      console.error('Student Dashboard: Error in fetchUserAndStudentData:', err)
       setError("Network error. Please try again.")
     } finally {
       setLoading(false)
@@ -477,21 +500,57 @@ export default function StudentDashboard() {
       setShowQuizModal(true)
       
       // Set timer if assignment has time limit (default 30 minutes)
-      const timeLimit = assignment.timeLimit || 30 * 60 // 30 minutes in seconds
-      setQuizTimeLeft(timeLimit)
+      // Ensure timeLimit is a valid positive number
+      let timeLimit = 30 * 60 // Default 30 minutes in seconds
       
-      // Start timer
-      const timer = setInterval(() => {
-        setQuizTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer)
-            submitQuiz()
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-      setQuizTimer(timer)
+      if (assignment.timeLimit !== undefined && assignment.timeLimit !== null) {
+        const assignmentTimeLimit = parseInt(assignment.timeLimit)
+        if (!isNaN(assignmentTimeLimit) && assignmentTimeLimit > 0) {
+          timeLimit = assignmentTimeLimit
+        }
+      }
+      
+      console.log('Quiz Debug: assignment.timeLimit (raw):', assignment.timeLimit)
+      console.log('Quiz Debug: assignment.timeLimit (type):', typeof assignment.timeLimit)
+      console.log('Quiz Debug: calculated timeLimit:', timeLimit)
+      console.log('Quiz Debug: assignment object keys:', Object.keys(assignment))
+      console.log('Quiz Debug: assignment created:', assignment.createdAt)
+      console.log('Quiz Debug: assignment id:', assignment.id || assignment._id)
+      
+      // Ensure timeLimit is reasonable (between 1 minute and 3 hours)
+      if (timeLimit < 60) {
+        console.log('Quiz Debug: timeLimit too small, setting to 30 minutes')
+        timeLimit = 30 * 60
+      } else if (timeLimit > 180 * 60) {
+        console.log('Quiz Debug: timeLimit too large, setting to 3 hours')
+        timeLimit = 180 * 60
+      }
+      
+      setQuizTimeLeft(timeLimit)
+      setQuizStartTime(Date.now()) // Record when quiz started
+      
+      // Add a small delay before starting timer to prevent immediate submission
+      setTimeout(() => {
+        console.log('Quiz Debug: Starting timer with', timeLimit, 'seconds (after delay)')
+        // Start timer
+        const timer = setInterval(() => {
+          setQuizTimeLeft((prev) => {
+            // Prevent auto-submission if quiz was started less than 10 seconds ago
+            const timeElapsed = (Date.now() - (quizStartTime || Date.now())) / 1000
+            if (prev <= 1 && timeElapsed >= 10) {
+              console.log('Quiz Debug: Timer expired after', timeElapsed, 'seconds, auto-submitting')
+              clearInterval(timer)
+              submitQuiz()
+              return 0
+            } else if (prev <= 1 && timeElapsed < 10) {
+              console.log('Quiz Debug: Timer would expire but quiz just started, extending by 30 minutes')
+              return 30 * 60 // Reset to 30 minutes if quiz just started
+            }
+            return prev - 1
+          })
+        }, 1000)
+        setQuizTimer(timer)
+      }, 100) // Small delay to ensure state is properly set
     } else if (assignment.type === 'homework') {
       // For homework assignments, use file upload
       startHomework(assignment)
@@ -558,6 +617,20 @@ export default function StudentDashboard() {
   }
 
   const submitQuiz = async () => {
+    // Prevent accidental immediate submission
+    const timeElapsed = quizStartTime ? (Date.now() - quizStartTime) / 1000 : 0
+    console.log('Quiz Debug: submitQuiz called after', timeElapsed, 'seconds')
+    
+    if (timeElapsed < 5) {
+      console.log('Quiz Debug: Preventing immediate submission, quiz just started')
+      toast({
+        title: "Quiz Just Started",
+        description: "Please wait a moment before submitting the quiz.",
+        variant: "destructive",
+      })
+      return
+    }
+    
     if (quizTimer) {
       clearInterval(quizTimer)
       setQuizTimer(null)
@@ -982,7 +1055,7 @@ export default function StudentDashboard() {
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold gradient-text">CareerLaunch</h1>
+              <h1 className="text-4xl font-bold gradient-text">Shaping Career</h1>
               <p className="text-sm text-gray-400 font-medium">Student Dashboard</p>
             </div>
           </Link>
@@ -1215,19 +1288,6 @@ export default function StudentDashboard() {
             )}
           </div>
           
-          {/* Calendar positioned on the right */}
-          <div className="md:w-80">
-            <div className="glass-card border border-white/10 p-4 rounded-xl shadow-md">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-lg border border-white/10 bg-black/80 text-white w-full"
-                modifiers={{ today: new Date() }}
-                modifiersClassNames={{ today: 'bg-blue-500/20 text-blue-400 font-bold' }}
-              />
-            </div>
-          </div>
         </div>
 
         {/* Enhanced Stats Overview */}

@@ -97,59 +97,82 @@ export default function TestResultsPage() {
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
       </div>
 
-      {/* Header */}
+      {/* Responsive Header */}
       <header className="relative z-10 glass-card border-b border-white/10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold gradient-text">CareerLaunch</h1>
-          </Link>
-          <nav className="flex items-center space-x-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between md:hidden">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold gradient-text">Shaping Career</h1>
+            </Link>
             <Link href="/">
               <Button
                 variant="outline"
-                className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 bg-transparent"
+                size="sm"
+                className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 bg-transparent text-sm px-3 py-2"
               >
-                Go to Home
+                Home
               </Button>
             </Link>
-          </nav>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold gradient-text">Shaping Career</h1>
+            </Link>
+            <nav className="flex items-center space-x-4">
+              <Link href="/">
+                <Button
+                  variant="outline"
+                  className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 bg-transparent"
+                >
+                  Go to Home
+                </Button>
+              </Link>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
+      {/* Responsive Results Content */}
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
         {/* Results Header */}
-        <div className="text-center mb-12">
-          <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center neon-glow">
-            <Brain className="w-12 h-12 text-white" />
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center neon-glow">
+            <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
           </div>
-          <Badge className="bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-300 border-green-500/30 mb-4 text-lg px-4 py-2">
-            <Target className="w-5 h-5 mr-2" />
+          <Badge className="bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-300 border-green-500/30 mb-3 sm:mb-4 text-base sm:text-lg px-3 sm:px-4 py-2">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             AI Analysis Complete
           </Badge>
-          <h1 className="text-6xl font-bold mb-4 gradient-text">Your Career Profile</h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 gradient-text">Your Career Profile</h1>
+          <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-4">
             Instant AI-powered analysis of your cognitive patterns and career potential
           </p>
         </div>
 
         {/* Primary Match */}
-        <Card className="mb-12 glass-card border-2 border-blue-500/30 neon-glow">
-          <CardHeader className="text-center pb-6">
-            <Badge className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border-blue-500/30 mb-4 text-lg px-4 py-2 mx-auto w-fit">
+        <Card className="mb-8 sm:mb-12 glass-card border-2 border-blue-500/30 neon-glow">
+          <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6">
+            <Badge className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border-blue-500/30 mb-3 sm:mb-4 text-base sm:text-lg px-3 sm:px-4 py-2 mx-auto w-fit">
               Recommended Career Path
             </Badge>
-            <CardTitle className="text-4xl gradient-text mb-2">{results.recommendedCareer}</CardTitle>
-            <CardDescription className="text-xl text-gray-300">
+            <CardTitle className="text-3xl sm:text-4xl gradient-text mb-2">{results.recommendedCareer}</CardTitle>
+            <CardDescription className="text-lg sm:text-xl text-gray-300">
               Your optimal career match based on AI analysis
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center">
-            <div className="text-3xl mb-6 text-green-400">{results.careerMatch}% Match</div>
-            <Progress value={results.careerMatch} className="h-4 bg-gray-800 mb-6" />
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <CardContent className="text-center px-4 sm:px-6">
+            <div className="text-2xl sm:text-3xl mb-4 sm:mb-6 text-green-400">{results.careerMatch}% Match</div>
+            <Progress value={results.careerMatch} className="h-3 sm:h-4 bg-gray-800 mb-4 sm:mb-6" />
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
               Your cognitive profile shows exceptional alignment with {results.recommendedCareer} roles, combining
               strong analytical thinking with innovative problem-solving abilities.
             </p>

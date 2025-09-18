@@ -62,6 +62,7 @@ export default function TeacherDashboard() {
     dueDate: "",
     points: "",
     type: "homework",
+    timeLimit: "30", // Default 30 minutes for quizzes
     assignToAll: true,
     selectedStudents: [] as string[],
     questions: [] as any[]
@@ -206,6 +207,7 @@ export default function TeacherDashboard() {
       dueDate: "",
       points: "",
       type: "homework",
+      timeLimit: "30",
       assignToAll: true,
       selectedStudents: [],
       questions: []
@@ -823,6 +825,7 @@ export default function TeacherDashboard() {
           dueDate: newAssignment.dueDate,
           points: newAssignment.points,
           type: newAssignment.type,
+          timeLimit: newAssignment.type === 'quiz' ? parseInt(newAssignment.timeLimit) * 60 : undefined, // Convert minutes to seconds for quizzes
           questions: newAssignment.type === 'quiz' ? newAssignment.questions : undefined,
           assignToAll: newAssignment.assignToAll,
           selectedStudents: newAssignment.selectedStudents,
@@ -3007,6 +3010,28 @@ export default function TeacherDashboard() {
                 className="bg-gray-800/50 border-gray-600 text-white"
               />
             </div>
+            
+            {/* Time Limit for Quizzes */}
+            {newAssignment.type === 'quiz' && (
+              <div className="space-y-2">
+                <Label htmlFor="timeLimit" className="text-gray-300">
+                  Time Limit (minutes)
+                </Label>
+                <Input
+                  id="timeLimit"
+                  type="number"
+                  placeholder="30"
+                  min="1"
+                  max="180"
+                  value={newAssignment.timeLimit}
+                  onChange={(e) => setNewAssignment({ ...newAssignment, timeLimit: e.target.value })}
+                  className="bg-gray-800/50 border-gray-600 text-white"
+                />
+                <p className="text-xs text-gray-400">
+                  Set how long students have to complete this quiz (1-180 minutes)
+                </p>
+              </div>
+            )}
           </div>
           
           {/* Student Assignment Section */}

@@ -81,27 +81,27 @@ export default function StartupIdeasPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center p-4 sm:p-6">
         <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-white" />
+          <CardHeader className="px-4 sm:px-6 pt-6 sm:pt-8">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
-            <CardTitle className="text-2xl">Idea Submitted!</CardTitle>
-            <CardDescription>Your startup idea has been sent to our investor network</CardDescription>
+            <CardTitle className="text-xl sm:text-2xl">Idea Submitted!</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Your startup idea has been sent to our investor network</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600">
+          <CardContent className="space-y-4 px-4 sm:px-6 pb-6 sm:pb-8">
+            <p className="text-gray-600 text-sm sm:text-base">
               We'll review your submission and connect you with relevant investors within 5-7 business days.
             </p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Link href="/startup-ideas/gallery">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-3">
                   View Your Idea in Gallery
                 </Button>
               </Link>
               <Link href="/">
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="w-full bg-transparent py-3">
                   Back to Home
                 </Button>
               </Link>
@@ -114,44 +114,65 @@ export default function StartupIdeasPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      {/* Header */}
+      {/* Responsive Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between lg:hidden">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shaping Career</h1>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="text-sm px-3 py-2">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-sm px-3 py-2">Sign Up</Button>
+              </Link>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">CareerLaunch</h1>
-          </Link>
-          <nav className="flex items-center space-x-4">
-            <Link href="/startup-ideas/gallery">
-              <Button variant="outline">Browse Ideas</Button>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Shaping Career</h1>
             </Link>
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">Sign Up</Button>
-            </Link>
-          </nav>
+            <nav className="flex items-center space-x-4">
+              <Link href="/startup-ideas/gallery">
+                <Button variant="outline">Browse Ideas</Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">Sign Up</Button>
+              </Link>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Page Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <Lightbulb className="w-10 h-10 text-white" />
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
+        {/* Responsive Page Header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-orange-400 to-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <Lightbulb className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Submit Your Startup Idea</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Submit Your Startup Idea</h1>
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             Have a brilliant startup idea? Share it with our network of investors and mentors who are looking for the
             next big thing.
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Responsive Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="text-center">
             <CardContent className="pt-6">
               <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
@@ -175,17 +196,17 @@ export default function StartupIdeasPage() {
           </Card>
         </div>
 
-        {/* Submission Form */}
+        {/* Responsive Submission Form */}
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl">Tell Us About Your Idea</CardTitle>
-            <CardDescription>
+          <CardHeader className="px-4 sm:px-6 pt-6 sm:pt-8">
+            <CardTitle className="text-xl sm:text-2xl">Tell Us About Your Idea</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Fill out the form below to submit your startup idea to our investor network
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
+          <CardContent className="px-4 sm:px-6 pb-6 sm:pb-8">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input 
@@ -208,7 +229,7 @@ export default function StartupIdeasPage() {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input 
@@ -309,18 +330,18 @@ export default function StartupIdeasPage() {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button
                   type="submit"
                   size="lg"
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+                  className="w-full sm:flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 py-3 sm:py-4"
                 >
-                  <Rocket className="w-5 h-5 mr-2" />
+                  <Rocket className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   {loading ? 'Submitting...' : 'Submit Idea'}
                 </Button>
-                <Link href="/">
-                  <Button type="button" variant="outline" size="lg">
+                <Link href="/" className="w-full sm:w-auto">
+                  <Button type="button" variant="outline" size="lg" className="w-full sm:w-auto py-3 sm:py-4">
                     Cancel
                   </Button>
                 </Link>

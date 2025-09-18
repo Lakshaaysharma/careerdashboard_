@@ -74,28 +74,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 sm:p-6">
       <div className="fixed inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="flex items-center justify-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
-              <TrendingUp className="w-7 h-7 text-white" />
+      <div className="w-full max-w-sm sm:max-w-md relative z-10">
+        {/* Responsive Logo */}
+        <div className="text-center mb-6 sm:mb-8">
+          <Link href="/" className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" />
             </div>
-            <h1 className="text-4xl font-bold gradient-text">Shaping Career</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text">Shaping Career</h1>
           </Link>
         </div>
 
         <Card className="glass-card shadow-2xl border border-white/10">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-3xl gradient-text">Welcome Back</CardTitle>
-            <CardDescription className="text-lg text-gray-300">Sign in to continue your career journey</CardDescription>
+          <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6 pt-6 sm:pt-8">
+            <CardTitle className="text-2xl sm:text-3xl gradient-text">Welcome Back</CardTitle>
+            <CardDescription className="text-base sm:text-lg text-gray-300">Sign in to continue your career journey</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 sm:px-6 pb-6 sm:pb-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <Alert className="bg-red-500/10 border-red-500/30 text-red-300">
@@ -106,7 +106,7 @@ export default function LoginPage() {
 
               {/* Google OAuth */}
               <GoogleAuth
-                role="student"
+                role={role || "student"} // Use selected role from form
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 isLoading={isLoading}
@@ -123,7 +123,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300 flex items-center">
+                <Label htmlFor="email" className="text-gray-300 flex items-center text-sm sm:text-base">
                   <Mail className="w-4 h-4 mr-2" />
                   Email
                 </Label>
@@ -133,13 +133,13 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                  className="bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 h-11 sm:h-12 text-base"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300 flex items-center">
+                <Label htmlFor="password" className="text-gray-300 flex items-center text-sm sm:text-base">
                   <Lock className="w-4 h-4 mr-2" />
                   Password
                 </Label>
@@ -149,31 +149,31 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                  className="bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 h-11 sm:h-12 text-base"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-gray-300 flex items-center">
+                <Label htmlFor="role" className="text-gray-300 flex items-center text-sm sm:text-base">
                   <User className="w-4 h-4 mr-2" />
                   Login as
                 </Label>
                 <Select value={role} onValueChange={setRole} required>
-                  <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white">
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white h-11 sm:h-12">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-600">
-                    <SelectItem value="student" className="text-white hover:bg-gray-700">
+                    <SelectItem value="student" className="text-white hover:bg-gray-700 py-3">
                       User
                     </SelectItem>
-                    <SelectItem value="teacher" className="text-white hover:bg-gray-700">
+                    <SelectItem value="teacher" className="text-white hover:bg-gray-700 py-3">
                       Teacher
                     </SelectItem>
-                    <SelectItem value="employer" className="text-white hover:bg-gray-700">
+                    <SelectItem value="employer" className="text-white hover:bg-gray-700 py-3">
                       Employer
                     </SelectItem>
-                    <SelectItem value="mentor" className="text-white hover:bg-gray-700">
+                    <SelectItem value="mentor" className="text-white hover:bg-gray-700 py-3">
                       Mentor
                     </SelectItem>
                   </SelectContent>
@@ -189,13 +189,13 @@ export default function LoginPage() {
               <div className="space-y-4">
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 neon-glow text-lg py-3"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 neon-glow text-base sm:text-lg py-3 sm:py-4"
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing In..." : "Sign In"}
                 </Button>
 
-                <div className="text-center text-sm text-gray-400">
+                <div className="text-center text-sm sm:text-base text-gray-400">
                   Don't have an account?{" "}
                   <Link href="/signup" className="text-blue-400 hover:text-blue-300 transition-colors">
                     Sign up

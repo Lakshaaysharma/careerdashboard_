@@ -94,7 +94,7 @@ app.use(fileUpload({
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
-    message: 'CareerLaunch API is running',
+    message: 'Shaping Career API is running',
     timestamp: new Date().toISOString()
   });
 });

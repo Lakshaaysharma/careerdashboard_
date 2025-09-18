@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from './button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
-import { Label } from './label'
 import { Loader2 } from 'lucide-react'
 import { apiCall } from '@/lib/config'
 
@@ -24,6 +22,12 @@ interface GoogleAuthProps {
 export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }: GoogleAuthProps) {
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
   const [selectedRole, setSelectedRole] = useState(role)
+
+  // Sync selectedRole with role prop changes
+  useEffect(() => {
+    setSelectedRole(role)
+    console.log('GoogleAuth: Role prop changed to:', role)
+  }, [role])
 
   useEffect(() => {
     // Load Google OAuth script
@@ -48,9 +52,12 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
   const initializeGoogleAuth = () => {
     if (!window.google) return
 
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-    if (!clientId) {
-      console.error('Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID')
+    // Try to get from environment, fallback to hardcoded for testing
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '914803437431-u6gu32i0dmng6ap93gqoq5kvlaoevqco.apps.googleusercontent.com'
+    console.log('Google Client ID:', clientId)
+    
+    if (!clientId || clientId === 'your-google-client-id-here') {
+      console.error('Missing or invalid NEXT_PUBLIC_GOOGLE_CLIENT_ID:', clientId)
       onError('Google Sign-In not configured. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID and restart the app.')
       return
     }
@@ -80,6 +87,8 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
   }
 
   const handleGoogleResponse = async (response: any) => {
+    console.log('GoogleAuth: handleGoogleResponse called with role:', selectedRole)
+    
     if (!selectedRole) {
       onError('Please select a role before continuing')
       return
@@ -88,6 +97,7 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
     setIsLoading(true)
     
     try {
+      console.log('GoogleAuth: Sending request with role:', selectedRole)
       const result = await apiCall('/api/auth/google', {
         method: 'POST',
         body: JSON.stringify({
@@ -97,8 +107,11 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
       })
 
       const data = await result.json()
+      console.log('GoogleAuth: Backend response:', data)
 
       if (result.ok && data.success) {
+        console.log('GoogleAuth: Success! User role from backend:', data.data.user.role)
+        console.log('GoogleAuth: Redirect URL from backend:', data.data.redirectUrl)
         onSuccess(data.data)
       } else {
         onError(data.message || 'Google authentication failed')
@@ -113,11 +126,11 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
 
   const handleGoogleSignIn = () => {
     if (!selectedRole) {
-      onError('Please select a role before continuing')
+      onError('Please select your role from the form above before continuing with Google')
       return
     }
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-    if (!clientId) {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '914803437431-u6gu32i0dmng6ap93gqoq5kvlaoevqco.apps.googleusercontent.com'
+    if (!clientId || clientId === 'your-google-client-id-here') {
       onError('Google Sign-In not configured. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID and restart the app.')
       return
     }
@@ -129,44 +142,17 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
 
   return (
     <div className="space-y-4">
-      <div className="space-y-3">
-        {/* Role Selection */}
-        <div className="space-y-2">
-          <Label htmlFor="google-role" className="text-gray-300 text-sm">
-            I am a
-          </Label>
-          <Select value={selectedRole} onValueChange={setSelectedRole}>
-            <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white">
-              <SelectValue placeholder="Select your role" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-600">
-              <SelectItem value="student" className="text-white hover:bg-gray-700">
-                User
-              </SelectItem>
-              <SelectItem value="teacher" className="text-white hover:bg-gray-700">
-                Teacher
-              </SelectItem>
-              <SelectItem value="employer" className="text-white hover:bg-gray-700">
-                Employer
-              </SelectItem>
-              <SelectItem value="mentor" className="text-white hover:bg-gray-700">
-                Mentor
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Google Sign-in Button */}
-        <div id="google-signin-button" className="w-full"></div>
-        
-        {/* Fallback button if Google script doesn't load */}
-        {!isGoogleLoaded && (
+      {/* Google Sign-in Button */}
+      <div id="google-signin-button" className="w-full"></div>
+      
+      {/* Fallback button if Google script doesn't load */}
+      {!isGoogleLoaded && (
           <Button
             type="button"
             variant="outline"
             className="w-full bg-white text-gray-900 hover:bg-gray-100 border-gray-300"
             onClick={handleGoogleSignIn}
-            disabled={isLoading || !selectedRole}
+            disabled={isLoading}
           >
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -193,7 +179,6 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
             Continue with Google
           </Button>
         )}
-      </div>
     </div>
   )
 } 

@@ -46,39 +46,60 @@ export default function InternshipsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Responsive Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between lg:hidden">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shaping Career</h1>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="text-sm px-3 py-2">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-sm px-3 py-2">Sign Up</Button>
+              </Link>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">CareerLaunch</h1>
-          </Link>
-          <nav className="flex items-center space-x-4">
-            <Link href="/jobs">
-              <Button variant="ghost">Jobs</Button>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Shaping Career</h1>
             </Link>
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">Sign Up</Button>
-            </Link>
-          </nav>
+            <nav className="flex items-center space-x-4">
+              <Link href="/jobs">
+                <Button variant="ghost">Jobs</Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">Sign Up</Button>
+              </Link>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Internship Opportunities</h1>
-          <p className="text-lg text-gray-600">Discover amazing internship opportunities to kickstart your career</p>
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Responsive Page Header */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Internship Opportunities</h1>
+          <p className="text-base sm:text-lg text-gray-600">Discover amazing internship opportunities to kickstart your career</p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-          <div className="grid md:grid-cols-4 gap-4">
+        {/* Responsive Filters */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm mb-6 sm:mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input placeholder="Search internships..." className="pl-10" />
@@ -120,29 +141,29 @@ export default function InternshipsPage() {
           </div>
         </div>
 
-        {/* Internships Grid */}
-        <div className="grid gap-6">
+        {/* Responsive Internships Grid */}
+        <div className="grid gap-4 sm:gap-6">
           {loading ? (
-            <div>Loading internships...</div>
+            <div className="text-center py-8 text-gray-600">Loading internships...</div>
           ) : internships.length === 0 ? (
-            <div>No internships found.</div>
+            <div className="text-center py-8 text-gray-600">No internships found.</div>
           ) : (
             internships.map((internship, index) => (
               <Card key={internship._id || index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-xl mb-2">{internship.title}</CardTitle>
-                      <CardDescription className="flex items-center text-lg">
+                <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg sm:text-xl mb-2">{internship.title}</CardTitle>
+                      <CardDescription className="flex items-center text-base sm:text-lg">
                         <Building className="w-4 h-4 mr-2" />
                         {internship.company}
                       </CardDescription>
                     </div>
-                    <Badge variant="secondary">{internship.type || 'Full-time'}</Badge>
+                    <Badge variant="secondary" className="self-start sm:self-auto">{internship.type || 'Full-time'}</Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                     <div className="flex items-center text-gray-600">
                       <MapPin className="w-4 h-4 mr-2" />
                       {internship.location}
@@ -165,14 +186,14 @@ export default function InternshipsPage() {
                       </Badge>
                     ))}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <Button 
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                       onClick={() => setApplyInternship(internship)}
                     >
                       Apply Now
                     </Button>
-                    <Button variant="outline">Save</Button>
+                    <Button variant="outline" className="w-full sm:w-auto">Save</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -188,11 +209,11 @@ export default function InternshipsPage() {
         </div>
       </div>
 
-      {/* Apply Modal */}
+      {/* Responsive Apply Modal */}
       <Dialog open={!!applyInternship} onOpenChange={(open) => !open && setApplyInternship(null)}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Apply for {applyInternship?.title}</DialogTitle>
+        <DialogContent className="max-w-xl mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+            <DialogTitle className="text-lg sm:text-xl">Apply for {applyInternship?.title}</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={async (e) => {
@@ -219,33 +240,33 @@ export default function InternshipsPage() {
                 setIsSubmitting(false)
               }
             }}
-            className="space-y-4"
+            className="space-y-4 px-4 sm:px-6 pb-4 sm:pb-6"
           >
             <div>
               <Label className="text-sm">Full Name</Label>
-              <Input name="name" placeholder="Your name" required />
+              <Input name="name" placeholder="Your name" required className="h-10 sm:h-12" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-sm">Email</Label>
-                <Input name="email" type="email" placeholder="you@email.com" required />
+                <Input name="email" type="email" placeholder="you@email.com" required className="h-10 sm:h-12" />
               </div>
               <div>
                 <Label className="text-sm">Phone</Label>
-                <Input name="phone" placeholder="+1 555 123 4567" required />
+                <Input name="phone" placeholder="+1 555 123 4567" required className="h-10 sm:h-12" />
               </div>
             </div>
             <div>
               <Label className="text-sm">Cover Letter</Label>
-              <Input name="coverLetter" placeholder="Brief summary" />
+              <Input name="coverLetter" placeholder="Brief summary" className="h-10 sm:h-12" />
             </div>
             <div>
               <Label className="text-sm">Resume (PDF)</Label>
-              <Input name="resume" type="file" accept="application/pdf" required />
+              <Input name="resume" type="file" accept="application/pdf" required className="h-10 sm:h-12" />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setApplyInternship(null)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-blue-600 to-indigo-600">{isSubmitting ? 'Submitting...' : 'Submit Application'}</Button>
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+              <Button type="button" variant="outline" onClick={() => setApplyInternship(null)} className="w-full sm:w-auto py-3">Cancel</Button>
+              <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 py-3">{isSubmitting ? 'Submitting...' : 'Submit Application'}</Button>
             </div>
           </form>
         </DialogContent>

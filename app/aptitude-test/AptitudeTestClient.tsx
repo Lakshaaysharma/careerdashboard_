@@ -235,76 +235,119 @@ export default function AptitudeTestClient() {
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
       </div>
 
+      {/* Responsive Header */}
       <header className="relative z-10 glass-card border-b border-white/10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold gradient-text">CareerLaunch</h1>
-          </Link>
-          <div className="flex items-center space-x-6 text-sm text-gray-300">
-            <div className="flex items-center glass-card px-3 py-2 rounded-lg">
-              <Clock className="w-4 h-4 mr-2 text-blue-400" />
-              {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
-            </div>
-            <div className="flex items-center glass-card px-3 py-2 rounded-lg">
-              <Users className="w-4 h-4 mr-2 text-purple-400" />
-              50,000+ completed
-            </div>
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-center md:hidden">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold gradient-text">Shaping Career</h1>
+            </Link>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-center">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold gradient-text">Shaping Career</h1>
+            </Link>
           </div>
         </div>
       </header>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
+      {/* Responsive Quiz Content */}
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
         {selectedSubject && (
-          <div className="mb-6 text-gray-300">Field selected: <span className="text-white font-semibold">{selectedSubject}</span></div>
+          <div className="mb-4 sm:mb-6 text-sm sm:text-base text-gray-300">
+            Field selected: <span className="text-white font-semibold">{selectedSubject}</span>
+          </div>
         )}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <span className="text-2xl font-bold gradient-text">
+        
+        {/* Responsive Progress Section */}
+        <div className="mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2 sm:gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <span className="text-xl sm:text-2xl font-bold gradient-text">
                 Question {questions.length > 0 ? currentQuestion + 1 : 0} of {questions.length}
               </span>
               {questions.length > 0 && (
-                <Badge className="ml-3 bg-blue-500/20 text-blue-300 border-blue-500/30">
+                <Badge className="self-start sm:self-auto bg-blue-500/20 text-blue-300 border-blue-500/30 text-sm">
                   {(quizCategories[currentQuestion] || (questions[currentQuestion] as any)?.category || 'General')}
                 </Badge>
               )}
             </div>
-            <span className="text-lg font-medium text-gray-300">{Math.round(progress)}% Complete</span>
+            <span className="text-base sm:text-lg font-medium text-gray-300">{Math.round(progress)}% Complete</span>
           </div>
-          <Progress value={progress} className="h-3 bg-gray-800" />
+          <Progress value={progress} className="h-2 sm:h-3 bg-gray-800" />
         </div>
 
-        <Card className="glass-card shadow-2xl mb-8">
-          <CardHeader className="pb-6">
-            <CardTitle className="text-3xl text-white leading-relaxed">{questions[currentQuestion]?.question || 'Generating quiz...'}</CardTitle>
-            <CardDescription className="text-lg text-gray-300">Choose the option that best describes your natural preference</CardDescription>
+        {/* Responsive Quiz Card */}
+        <Card className="glass-card shadow-2xl mb-6 sm:mb-8">
+          <CardHeader className="pb-4 sm:pb-6 px-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl lg:text-3xl text-white leading-relaxed">
+              {questions[currentQuestion]?.question || 'Generating quiz...'}
+            </CardTitle>
+            <CardDescription className="text-base sm:text-lg text-gray-300">
+              Choose the option that best describes your natural preference
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            {loading && <div className="text-gray-400 mb-4">Generating quiz...</div>}
-            <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} className="space-y-4">
+          <CardContent className="px-4 sm:px-6">
+            {loading && <div className="text-gray-400 mb-4 text-sm sm:text-base">Generating quiz...</div>}
+            <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} className="space-y-3 sm:space-y-4">
               {(questions[currentQuestion]?.options || []).map((option, index) => (
-                <div key={index} className="flex items-start space-x-4 p-4 rounded-xl hover:bg-white/5 cursor-pointer transition-all duration-300 border border-transparent hover:border-white/10">
+                <div key={index} className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl hover:bg-white/5 cursor-pointer transition-all duration-300 border border-transparent hover:border-white/10">
                   <RadioGroupItem value={option} id={`option-${index}`} className="mt-1" />
-                  <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-lg text-gray-200 leading-relaxed">{option}</Label>
+                  <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer text-base sm:text-lg text-gray-200 leading-relaxed">
+                    {option}
+                  </Label>
                 </div>
               ))}
             </RadioGroup>
           </CardContent>
         </Card>
 
-        <div className="flex justify-between items-center">
-          <Button variant="outline" onClick={handlePrevious} disabled={currentQuestion === 0} className="border-gray-600 text-gray-300 hover:bg-white/10 px-8 py-3 bg-transparent">Previous</Button>
-          <div className="flex space-x-2">
-            {questions.map((_, index) => (
-              <div key={index} className={`w-3 h-3 rounded-full transition-all duration-300 ${index < currentQuestion ? "bg-green-500" : index === currentQuestion ? "bg-blue-500 neon-glow" : "bg-gray-700"}`} />
-            ))}
+        {/* Responsive Navigation Buttons */}
+        <div className="flex flex-col gap-4 sm:gap-6">
+          {/* Progress Dots */}
+          <div className="flex justify-center">
+            <div className="flex space-x-2 sm:space-x-3">
+              {questions.map((_, index) => (
+                <div key={index} className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index < currentQuestion ? "bg-green-500" : index === currentQuestion ? "bg-blue-500 neon-glow" : "bg-gray-700"}`} />
+              ))}
+            </div>
           </div>
-          <Button onClick={handleNext} disabled={!selectedAnswer} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 neon-glow px-8 py-3 text-lg">
-            {currentQuestion === questions.length - 1 ? (<><Zap className="w-5 h-5 mr-2" />View Results</>) : ("Next Question")}
-          </Button>
+          
+          {/* Navigation Buttons */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevious} 
+              disabled={currentQuestion === 0} 
+              className="w-full sm:w-auto border-gray-600 text-gray-300 hover:bg-white/10 px-6 sm:px-8 py-3 bg-transparent"
+            >
+              Previous
+            </Button>
+            
+            <Button 
+              onClick={handleNext} 
+              disabled={!selectedAnswer} 
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 neon-glow px-6 sm:px-8 py-3 text-base sm:text-lg"
+            >
+              {currentQuestion === questions.length - 1 ? (
+                <>
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  View Results
+                </>
+              ) : (
+                "Next Question"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
