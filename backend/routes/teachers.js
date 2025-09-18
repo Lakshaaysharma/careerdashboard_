@@ -444,6 +444,109 @@ router.get('/assignments/:assignmentId/submissions', protect, asyncHandler(async
   });
 }));
 
+// @desc    Get student's assignment status (completed/uncompleted)
+// @route   GET /api/teachers/students/:studentId/assignments
+// @access  Private
+router.get('/students/:studentId/assignments', protect, asyncHandler(async (req, res) => {
+  if (req.user.role !== 'teacher') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Only teachers can access this endpoint.'
+    });
+  }
+
+  const { studentId } = req.params;
+
+  try {
+    // Get the teacher's assignments
+    const teacher = await Teacher.findOne({ userId: req.user._id });
+    if (!teacher) {
+      return res.status(404).json({
+        success: false,
+        message: 'Teacher profile not found'
+      });
+    }
+
+    // Get the student
+    const Student = require('../models/Student');
+    const student = await Student.findById(studentId).populate('userId', 'name email');
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    // Get student's completed assignment IDs
+    const completedAssignmentIds = student.assignmentHistory.map(assignment => 
+      assignment.assignmentId.toString()
+    );
+
+    // Separate completed and uncompleted assignments
+    const completedAssignments = [];
+    const uncompletedAssignments = [];
+
+    teacher.assignments.forEach(assignment => {
+      const assignmentData = {
+        id: assignment._id,
+        title: assignment.title,
+        subject: assignment.subject,
+        type: assignment.type,
+        points: assignment.points,
+        dueDate: assignment.dueDate,
+        createdAt: assignment.createdAt
+      };
+
+      if (completedAssignmentIds.includes(assignment._id.toString())) {
+        // Find the completion details
+        const completionDetails = student.assignmentHistory.find(
+          history => history.assignmentId.toString() === assignment._id.toString()
+        );
+        
+        completedAssignments.push({
+          ...assignmentData,
+          score: completionDetails.score,
+          pointsEarned: completionDetails.pointsEarned,
+          completedAt: completionDetails.completedAt,
+          status: 'completed'
+        });
+      } else if (assignment.status === 'active') {
+        uncompletedAssignments.push({
+          ...assignmentData,
+          status: 'uncompleted'
+        });
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        student: {
+          id: student._id,
+          name: student.userId.name,
+          email: student.userId.email
+        },
+        completedAssignments,
+        uncompletedAssignments,
+        summary: {
+          totalAssignments: teacher.assignments.filter(a => a.status === 'active').length,
+          completedCount: completedAssignments.length,
+          uncompletedCount: uncompletedAssignments.length,
+          completionRate: teacher.assignments.filter(a => a.status === 'active').length > 0 
+            ? Math.round((completedAssignments.length / teacher.assignments.filter(a => a.status === 'active').length) * 100)
+            : 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching student assignments:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch student assignments'
+    });
+  }
+}));
+
 // @desc    Get enrolled students for teacher
 // @route   GET /api/teachers/students
 // @access  Private

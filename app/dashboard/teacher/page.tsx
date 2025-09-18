@@ -75,6 +75,21 @@ export default function TeacherDashboard() {
   // Add state for available students
   const [availableStudents, setAvailableStudents] = useState<any[]>([])
   const [loadingStudents, setLoadingStudents] = useState(false)
+  
+  // Add state for viewing submissions
+  const [showSubmissionsModal, setShowSubmissionsModal] = useState(false)
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null)
+  const [submissions, setSubmissions] = useState<any[]>([])
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false)
+  
+  // Add state for student assignments
+  const [selectedStudentProfile, setSelectedStudentProfile] = useState<any>(null)
+  const [studentAssignments, setStudentAssignments] = useState<any>({
+    completedAssignments: [],
+    uncompletedAssignments: [],
+    summary: {}
+  })
+  const [loadingStudentAssignments, setLoadingStudentAssignments] = useState(false)
   // Add state for enrolled students in selected subject
   const [enrolledStudents, setEnrolledStudents] = useState<any[]>([])
   const [loadingEnrolledStudents, setLoadingEnrolledStudents] = useState(false)
@@ -322,6 +337,86 @@ export default function TeacherDashboard() {
     } finally {
       setLoadingStudents(false)
     }
+  }
+
+  // Function to fetch assignment submissions
+  const fetchSubmissions = async (assignmentId: string) => {
+    setLoadingSubmissions(true)
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        setError("Not authenticated. Please log in.")
+        return
+      }
+
+      const response = await apiCall(`/api/teachers/assignments/${assignmentId}/submissions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setSubmissions(data.data.submissions)
+      } else {
+        console.error("Failed to fetch submissions:", data.message)
+        setError("Failed to fetch submissions")
+      }
+    } catch (error) {
+      console.error("Failed to fetch submissions:", error)
+      setError("Failed to fetch submissions")
+    } finally {
+      setLoadingSubmissions(false)
+    }
+  }
+
+  // Function to view assignment submissions
+  const viewSubmissions = (assignment: any) => {
+    setSelectedAssignment(assignment)
+    setShowSubmissionsModal(true)
+    fetchSubmissions(assignment._id)
+  }
+
+  // Function to fetch student assignments
+  const fetchStudentAssignments = async (studentId: string) => {
+    setLoadingStudentAssignments(true)
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        setError("Not authenticated. Please log in.")
+        return
+      }
+
+      const response = await apiCall(`/api/teachers/students/${studentId}/assignments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setStudentAssignments({
+          completedAssignments: data.data.completedAssignments,
+          uncompletedAssignments: data.data.uncompletedAssignments,
+          summary: data.data.summary
+        })
+      } else {
+        console.error("Failed to fetch student assignments:", data.message)
+        setError("Failed to fetch student assignments")
+      }
+    } catch (error) {
+      console.error("Failed to fetch student assignments:", error)
+      setError("Failed to fetch student assignments")
+    } finally {
+      setLoadingStudentAssignments(false)
+    }
+  }
+
+  // Function to handle viewing student profile with assignments
+  const handleViewStudentProfile = (student: any) => {
+    setSelectedStudentProfile(student)
+    setShowStudentProfileDialog(true)
+    fetchStudentAssignments(student._id)
   }
 
   const fetchEnrolledStudents = async (token: string, subjectName: string) => {
@@ -857,10 +952,6 @@ export default function TeacherDashboard() {
     }
   }
 
-  const handleViewStudentProfile = (student: any) => {
-    setSelectedStudent(student)
-    setShowStudentProfileDialog(true)
-  }
 
   // Subject selection functions
   const handleSubjectToggle = (subjectId: string) => {
@@ -1641,29 +1732,30 @@ export default function TeacherDashboard() {
 
       {/* Header */}
       <header className="relative z-10 glass-card border-b border-white/10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
-              <TrendingUp className="w-6 h-6 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+              <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text">Shaping Career</h1>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold gradient-text">Shaping Career</h1>
           </Link>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
             {/* Go to Dashboard Button */}
-            <Link href="/">
+            <Link href="/" className="w-full sm:w-auto">
               <Button 
                 variant="outline" 
-                className="flex items-center space-x-2 bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300"
+                className="flex items-center justify-center space-x-2 bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300 w-full sm:w-auto"
               >
                 <Home className="w-4 h-4" />
-                <span>Go to Dashboard</span>
+                <span className="hidden sm:inline">Go to Dashboard</span>
+                <span className="sm:hidden">Dashboard</span>
               </Button>
             </Link>
             
             {/* Chat Dialog Trigger */}
             <div className="cursor-pointer" onClick={() => setShowChatDialog(true)}>
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center border-2 border-green-500/30 hover:border-green-400/50 transition-all duration-300">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center border-2 border-green-500/30 hover:border-green-400/50 transition-all duration-300">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
@@ -1709,17 +1801,17 @@ export default function TeacherDashboard() {
         </div>
       </header>
 
-      <div className="relative z-10 container mx-auto px-6 py-12">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 py-6 sm:py-12">
         {/* Welcome Section */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-12 text-center sm:text-left">
           <div>
-            <h2 className="text-4xl font-bold gradient-text mb-2">Welcome back, {user.name?.split(' ')[0]}!</h2>
-            <p className="text-xl text-gray-300">Manage your courses and empower the next generation</p>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text mb-2">Welcome back, {user.name?.split(' ')[0]}!</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-300">Manage your courses and empower the next generation</p>
           </div>
         </div>
 
       {/* Stats Overview */}
-      <div className="grid md:grid-cols-2 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
         <Card className="glass-card hover:bg-white/5 transition-all duration-300">
           <CardContent className="pt-8">
             <div className="flex items-center justify-between">
@@ -1764,11 +1856,11 @@ export default function TeacherDashboard() {
         </CardHeader>
         <CardContent>
           {teacherData?.subjects && teacherData.subjects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {teacherData.subjects.map((subject: any, index: number) => (
                 <div 
                   key={index} 
-                  className={`p-6 glass-card rounded-lg border transition-all duration-300 cursor-pointer ${
+                  className={`p-4 sm:p-6 glass-card rounded-lg border transition-all duration-300 cursor-pointer ${
                     selectedSubject === subject.name
                       ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/20'
                       : 'border-blue-500/20 hover:bg-white/5 hover:border-blue-400'
@@ -1776,18 +1868,18 @@ export default function TeacherDashboard() {
                   onClick={() => handleSubjectClick(subject.name)}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
                         selectedSubject === subject.name
                           ? 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg'
                           : 'bg-gradient-to-r from-blue-500 to-purple-500'
                       }`}>
-                        <BookOpen className="w-5 h-5 text-white" />
+                        <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-white">{subject.name}</h4>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-white text-sm sm:text-base truncate">{subject.name}</h4>
                         {selectedSubject === subject.name && (
-                          <p className="text-sm text-blue-400">Selected</p>
+                          <p className="text-xs sm:text-sm text-blue-400">Selected</p>
                         )}
                       </div>
                     </div>
@@ -1883,16 +1975,19 @@ export default function TeacherDashboard() {
 
 
 
-      <Tabs defaultValue="assignments" className="space-y-10">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 p-2">
-          <TabsTrigger value="assignments" className="data-[state=active]:bg-blue-600">
-            Assignments
+      <Tabs defaultValue="assignments" className="space-y-6 sm:space-y-10">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 p-1 sm:p-2 h-auto">
+          <TabsTrigger value="assignments" className="data-[state=active]:bg-blue-600 flex-col sm:flex-row p-2 sm:p-3">
+            <BookOpen className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Assignments</span>
           </TabsTrigger>
-          <TabsTrigger value="students" className="data-[state=active]:bg-purple-600">
-            Students
+          <TabsTrigger value="students" className="data-[state=active]:bg-purple-600 flex-col sm:flex-row p-2 sm:p-3">
+            <Users className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Students</span>
           </TabsTrigger>
-          <TabsTrigger value="attendance" className="data-[state=active]:bg-orange-600">
-            Attendance
+          <TabsTrigger value="attendance" className="data-[state=active]:bg-orange-600 flex-col sm:flex-row p-2 sm:p-3">
+            <Clock className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Attendance</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1996,20 +2091,22 @@ export default function TeacherDashboard() {
                   <div className="space-y-4">
                     {filteredAssignments.map((assignment: any, index: any) => (
                       <div key={index} className="p-4 glass-card rounded-lg hover:bg-white/5 transition-all duration-300">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h4 className="font-semibold text-white text-lg">{assignment.title}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white text-base sm:text-lg">{assignment.title}</h4>
                             <p className="text-sm text-gray-400">{assignment.subject}</p>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
-                            <FileText className="w-4 h-4 mr-1" />
-                            View Submissions
-                          </Button>
-                          <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 bg-transparent">
-                            Edit
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-to-r from-blue-600 to-purple-600 w-full sm:w-auto"
+                              onClick={() => viewSubmissions(assignment)}
+                            >
+                              <FileText className="w-4 h-4 mr-1" />
+                              <span className="hidden sm:inline">View Submissions</span>
+                              <span className="sm:hidden">View</span>
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -2181,14 +2278,6 @@ export default function TeacherDashboard() {
                           >
                             <Target className="w-4 h-4 mr-1" />
                             View Profile
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-green-500/50 text-green-400 bg-transparent"
-                          >
-                            <BookOpen className="w-4 h-4 mr-1" />
-                            View Assignments
                           </Button>
                         </div>
                       </div>
@@ -2434,61 +2523,183 @@ export default function TeacherDashboard() {
 
     {/* Student Profile Dialog */}
     <Dialog open={showStudentProfileDialog} onOpenChange={setShowStudentProfileDialog}>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl gradient-text flex items-center">
             <Users className="w-6 h-6 mr-2" />
-            Student Profile
+            Student Profile & Assignment Status
           </DialogTitle>
           <DialogDescription className="text-gray-300">
-            Detailed information about the student
+            Detailed information about the student and their assignment progress
           </DialogDescription>
         </DialogHeader>
         
-        {selectedStudent && (
-          <div className="space-y-4">
-            {/* Student Header */}
+        {selectedStudentProfile && (
+          <div className="space-y-6">
+            {/* Student Info */}
             <div className="flex items-center space-x-4 p-4 glass-card rounded-lg">
-              <Avatar className="w-16 h-16 border-2 border-blue-500/30 flex-shrink-0">
-                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xl">
-                  {selectedStudent.name.split(" ").map((n: string) => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xl font-bold text-white truncate">{selectedStudent.name}</h3>
-                <p className="text-gray-400 text-sm truncate">{selectedStudent.email}</p>
-                <p className="text-xs text-gray-500">ID: {selectedStudent._id}</p>
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-xl">
+                  {selectedStudentProfile.name.charAt(0).toUpperCase()}
+                </span>
               </div>
-            </div>
-
-            {/* Student Details */}
-            <div className="grid grid-cols-1 gap-4">
-              <div className="p-4 glass-card rounded-lg">
-                <h4 className="text-lg font-semibold text-white mb-3">Academic Information</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Attendance:</span>
-                    <span className="text-white">{selectedStudent.attendance || 85}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Assignments Completed:</span>
-                    <span className="text-white">{selectedStudent.completedAssignments || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Assignments Left:</span>
-                    <span className="text-white">{selectedStudent.totalAssignments - selectedStudent.completedAssignments || 0}</span>
-                  </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white">{selectedStudentProfile.name}</h3>
+                <p className="text-gray-400">{selectedStudentProfile.email}</p>
+                <p className="text-sm text-gray-500">ID: {selectedStudentProfile._id}</p>
+              </div>
+              
+              {/* Assignment Summary Stats */}
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-green-400">
+                    {studentAssignments.summary.completedCount || 0}
+                  </p>
+                  <p className="text-gray-400 text-sm">Completed</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-yellow-400">
+                    {studentAssignments.summary.uncompletedCount || 0}
+                  </p>
+                  <p className="text-gray-400 text-sm">Pending</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-400">
+                    {studentAssignments.summary.completionRate || 0}%
+                  </p>
+                  <p className="text-gray-400 text-sm">Completion Rate</p>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2 pt-4">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
-                <BookOpen className="w-4 h-4 mr-2" />
-                View Assignments
-              </Button>
-            </div>
+            {/* Assignment Status Tabs */}
+            <Tabs defaultValue="completed" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 glass-card">
+                <TabsTrigger value="completed" className="data-[state=active]:bg-green-600">
+                  Completed ({studentAssignments.summary.completedCount || 0})
+                </TabsTrigger>
+                <TabsTrigger value="pending" className="data-[state=active]:bg-yellow-600">
+                  Pending ({studentAssignments.summary.uncompletedCount || 0})
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Completed Assignments */}
+              <TabsContent value="completed" className="space-y-4">
+                {loadingStudentAssignments ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
+                    <p className="text-gray-400 mt-2">Loading assignments...</p>
+                  </div>
+                ) : studentAssignments.completedAssignments.length > 0 ? (
+                  <div className="space-y-3">
+                    {studentAssignments.completedAssignments.map((assignment: any, index: number) => (
+                      <div key={index} className="p-4 glass-card rounded-lg border-l-4 border-green-500">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">{assignment.title}</h4>
+                            <div className="flex items-center space-x-4 mt-1">
+                              <span className="text-sm text-gray-400">{assignment.subject}</span>
+                              <Badge className="bg-green-500/20 text-green-300 border-green-500/30 capitalize">
+                                {assignment.type}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-6">
+                            <div className="text-right">
+                              <p className="text-gray-400 text-sm">Score</p>
+                              <p className={`font-bold text-lg ${
+                                assignment.score >= 90 ? 'text-green-400' :
+                                assignment.score >= 80 ? 'text-blue-400' :
+                                assignment.score >= 70 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {assignment.score}%
+                              </p>
+                            </div>
+                            
+                            <div className="text-right">
+                              <p className="text-gray-400 text-sm">Points</p>
+                              <p className="font-bold text-lg text-purple-400">
+                                {assignment.pointsEarned}
+                              </p>
+                            </div>
+                            
+                            <div className="text-right">
+                              <p className="text-gray-400 text-sm">Completed</p>
+                              <p className="text-white text-sm">
+                                {new Date(assignment.completedAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle2 className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                    <p className="text-gray-400 text-lg">No completed assignments</p>
+                    <p className="text-gray-500 text-sm mt-2">Student hasn't completed any assignments yet.</p>
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Pending Assignments */}
+              <TabsContent value="pending" className="space-y-4">
+                {loadingStudentAssignments ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto"></div>
+                    <p className="text-gray-400 mt-2">Loading assignments...</p>
+                  </div>
+                ) : studentAssignments.uncompletedAssignments.length > 0 ? (
+                  <div className="space-y-3">
+                    {studentAssignments.uncompletedAssignments.map((assignment: any, index: number) => (
+                      <div key={index} className="p-4 glass-card rounded-lg border-l-4 border-yellow-500">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">{assignment.title}</h4>
+                            <div className="flex items-center space-x-4 mt-1">
+                              <span className="text-sm text-gray-400">{assignment.subject}</span>
+                              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 capitalize">
+                                {assignment.type}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-6">
+                            <div className="text-right">
+                              <p className="text-gray-400 text-sm">Points Available</p>
+                              <p className="font-bold text-lg text-yellow-400">
+                                {assignment.points}
+                              </p>
+                            </div>
+                            
+                            <div className="text-right">
+                              <p className="text-gray-400 text-sm">Due Date</p>
+                              <p className="text-white text-sm">
+                                {new Date(assignment.dueDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                            
+                            <div className="text-right">
+                              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                                Pending
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle2 className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                    <p className="text-gray-400 text-lg">All assignments completed!</p>
+                    <p className="text-gray-500 text-sm mt-2">Student has completed all available assignments.</p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </DialogContent>
@@ -4325,8 +4536,164 @@ export default function TeacherDashboard() {
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
-  </div>
-)
+        </DialogContent>
+      </Dialog>
+
+      {/* Submissions Modal */}
+      <Dialog open={showSubmissionsModal} onOpenChange={setShowSubmissionsModal}>
+        <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl gradient-text flex items-center">
+              <FileText className="w-6 h-6 mr-2" />
+              Assignment Submissions
+            </DialogTitle>
+            <DialogDescription className="text-gray-300">
+              {selectedAssignment ? `Viewing submissions for "${selectedAssignment.title}"` : 'Loading...'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Assignment Details */}
+            {selectedAssignment && (
+              <div className="p-4 glass-card rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">Subject</p>
+                    <p className="text-white font-medium">{selectedAssignment.subject}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Type</p>
+                    <p className="text-white font-medium capitalize">{selectedAssignment.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Points</p>
+                    <p className="text-white font-medium">{selectedAssignment.points}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Due Date</p>
+                    <p className="text-white font-medium">
+                      {new Date(selectedAssignment.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Submissions List */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Student Submissions ({submissions.length})
+              </h3>
+              
+              {loadingSubmissions ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="text-gray-400 mt-2">Loading submissions...</p>
+                </div>
+              ) : submissions.length > 0 ? (
+                <div className="space-y-3">
+                  {submissions.map((submission, index) => (
+                    <div key={index} className="p-4 glass-card rounded-lg hover:bg-white/5 transition-all duration-300">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span className="text-white font-semibold text-sm">
+                              {submission.studentName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-white">{submission.studentName}</h4>
+                            <p className="text-sm text-gray-400">{submission.studentEmail}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-6">
+                          <div className="text-right">
+                            <p className="text-gray-400 text-sm">Score</p>
+                            <p className={`font-bold text-lg ${
+                              submission.score >= 90 ? 'text-green-400' :
+                              submission.score >= 80 ? 'text-blue-400' :
+                              submission.score >= 70 ? 'text-yellow-400' : 'text-red-400'
+                            }`}>
+                              {submission.score}%
+                            </p>
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="text-gray-400 text-sm">Points Earned</p>
+                            <p className="font-bold text-lg text-purple-400">
+                              {submission.pointsEarned}
+                            </p>
+                          </div>
+                          
+                          <div className="text-right">
+                            <p className="text-gray-400 text-sm">Submitted</p>
+                            <p className="text-white text-sm">
+                              {new Date(submission.completedAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-400 text-xs">
+                              {new Date(submission.completedAt).toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No submissions yet</p>
+                  <p className="text-gray-500 text-sm mt-2">Students haven't submitted this assignment yet.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Summary Statistics */}
+            {submissions.length > 0 && (
+              <div className="p-4 glass-card rounded-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">Summary Statistics</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-400">
+                      {submissions.length}
+                    </p>
+                    <p className="text-gray-400 text-sm">Total Submissions</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-400">
+                      {Math.round(submissions.reduce((sum, s) => sum + s.score, 0) / submissions.length)}%
+                    </p>
+                    <p className="text-gray-400 text-sm">Average Score</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-400">
+                      {Math.round(submissions.reduce((sum, s) => sum + s.pointsEarned, 0) / submissions.length)}
+                    </p>
+                    <p className="text-gray-400 text-sm">Avg Points Earned</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-400">
+                      {Math.max(...submissions.map(s => s.score))}%
+                    </p>
+                    <p className="text-gray-400 text-sm">Highest Score</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end mt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowSubmissionsModal(false)}
+              className="border-gray-600 text-gray-300 hover:bg-white/10"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }

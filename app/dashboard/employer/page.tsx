@@ -343,14 +343,14 @@ export default function EmployerDashboard() {
 
       {/* Header */}
       <header className="relative z-10 glass-card border-b border-white/10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
-              <TrendingUp className="w-6 h-6 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 justify-center sm:justify-start">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center neon-glow">
+              <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text">Shaping Career</h1>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold gradient-text">Shaping Career</h1>
           </Link>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-center sm:justify-end space-x-3 sm:space-x-4">
             {/* Profile Dialog Trigger */}
             <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
               <DialogTrigger asChild>
@@ -363,7 +363,7 @@ export default function EmployerDashboard() {
                   </Avatar>
                 </div>
               </DialogTrigger>
-              <DialogContent className="bg-gray-900 border-gray-700 max-w-md">
+              <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-md">
                 <DialogHeader>
                   <DialogTitle className="text-2xl gradient-text">Profile Details</DialogTitle>
                   <DialogDescription className="text-gray-300">Your account information</DialogDescription>
@@ -421,55 +421,55 @@ export default function EmployerDashboard() {
         </div>
       </header>
 
-      <div className="relative z-10 container mx-auto px-4 py-8">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8 text-center sm:text-left">
           <div>
-            <h2 className="text-4xl font-bold gradient-text mb-2">Welcome back, {dashboardData.name?.split(' ')[0]}!</h2>
-            <p className="text-xl text-gray-300">Manage your job postings and find the perfect candidates</p>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text mb-2">Welcome back, {dashboardData.name?.split(' ')[0]}!</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-300">Manage your job postings and find the perfect candidates</p>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="glass-card">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm font-medium">Total Jobs</p>
-                  <p className="text-3xl font-bold text-white">{dashboardData.totalJobs}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm font-medium">Total Jobs</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData.totalJobs}</p>
                 </div>
-                <div className="p-3 bg-blue-500/20 rounded-xl">
-                  <Briefcase className="w-8 h-8 text-blue-400" />
+                <div className="p-2 sm:p-3 bg-blue-500/20 rounded-xl">
+                  <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="glass-card">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm font-medium">Total Internships</p>
-                  <p className="text-3xl font-bold text-white">{dashboardData.totalInternships}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm font-medium">Total Internships</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData.totalInternships}</p>
                 </div>
-                <div className="p-3 bg-purple-500/20 rounded-xl">
-                  <GraduationCap className="w-8 h-8 text-purple-400" />
+                <div className="p-2 sm:p-3 bg-purple-500/20 rounded-xl">
+                  <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Link href="/dashboard/employer/applicants" className="block">
-            <Card className="glass-card cursor-pointer">
-              <CardContent className="p-6">
+          <Link href="/dashboard/employer/applicants" className="block sm:col-span-2 lg:col-span-1">
+            <Card className="glass-card cursor-pointer hover:bg-white/5 transition-all duration-300">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm font-medium">Total Applications</p>
-                    <p className="text-3xl font-bold text-white">{dashboardData.totalApplications}</p>
+                    <p className="text-gray-400 text-xs sm:text-sm font-medium">Total Applications</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-white">{dashboardData.totalApplications}</p>
                   </div>
-                  <div className="p-3 bg-green-500/20 rounded-xl">
-                    <Users className="w-8 h-8 text-green-400" />
+                  <div className="p-2 sm:p-3 bg-green-500/20 rounded-xl">
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-green-400" />
                   </div>
                 </div>
               </CardContent>
@@ -478,29 +478,30 @@ export default function EmployerDashboard() {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="jobs" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 p-1 rounded-xl">
-            <TabsTrigger value="jobs" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-lg">
-              <Briefcase className="w-4 h-4 mr-2" />
-              Jobs
+        <Tabs defaultValue="jobs" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 p-1 rounded-xl h-auto">
+            <TabsTrigger value="jobs" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white rounded-lg flex-col sm:flex-row p-2 sm:p-3">
+              <Briefcase className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="text-xs sm:text-sm">Jobs</span>
             </TabsTrigger>
-            <TabsTrigger value="internships" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white rounded-lg">
-              <GraduationCap className="w-4 h-4 mr-2" />
-              Internships
+            <TabsTrigger value="internships" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white rounded-lg flex-col sm:flex-row p-2 sm:p-3">
+              <GraduationCap className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="text-xs sm:text-sm">Internships</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Jobs Tab */}
-          <TabsContent value="jobs" className="space-y-6">
+          <TabsContent value="jobs" className="space-y-4 sm:space-y-6">
             {/* Post Job Button */}
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-white">Your Job Postings</h3>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
+              <h3 className="text-lg sm:text-xl font-semibold text-white text-center sm:text-left">Your Job Postings</h3>
               <Button 
                 onClick={() => setShowJobForm(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Post New Job
+                <span className="hidden sm:inline">Post New Job</span>
+                <span className="sm:hidden">Post Job</span>
               </Button>
             </div>
 
@@ -525,37 +526,37 @@ export default function EmployerDashboard() {
                   <div className="space-y-4">
                     {jobs.map((job) => (
                       <Card key={job.id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800/70 transition-colors">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-xl font-semibold text-white">{job.title}</h3>
-                                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                <h3 className="text-lg sm:text-xl font-semibold text-white truncate">{job.title}</h3>
+                                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 self-start">
                                   <CheckCircle className="w-3 h-3 mr-1" />
                                   Active
                                 </Badge>
                               </div>
-                              <p className="text-gray-300 mb-3 line-clamp-2">{job.description}</p>
-                              <div className="flex items-center gap-6 text-sm text-gray-400">
+                              <p className="text-gray-300 mb-3 line-clamp-2 text-sm sm:text-base">{job.description}</p>
+                              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm text-gray-400">
                                 <div className="flex items-center gap-1">
-                                  <MapPin className="w-4 h-4" />
-                                  {job.location}
+                                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span className="truncate">{job.location}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <DollarSign className="w-4 h-4" />
-                                  {job.salary}
+                                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span className="truncate">{job.salary}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Users className="w-4 h-4" />
-                                  {job.applications} applications
+                                  <Users className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span>{job.applications} apps</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Eye className="w-4 h-4" />
-                                  {job.views} views
+                                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span>{job.views} views</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 ml-4">
+                            <div className="flex items-center justify-end gap-2">
                               <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -579,28 +580,29 @@ export default function EmployerDashboard() {
           </TabsContent>
 
           {/* Internships Tab */}
-          <TabsContent value="internships" className="space-y-6">
+          <TabsContent value="internships" className="space-y-4 sm:space-y-6">
             {/* Post Internship Button */}
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-white">Your Internship Postings</h3>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
+              <h3 className="text-lg sm:text-xl font-semibold text-white text-center sm:text-left">Your Internship Postings</h3>
               <Button 
                 onClick={() => setShowInternshipForm(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Post New Internship
+                <span className="hidden sm:inline">Post New Internship</span>
+                <span className="sm:hidden">Post Internship</span>
               </Button>
             </div>
 
             {/* Internship Posting Dialog */}
             <Dialog open={showInternshipForm} onOpenChange={setShowInternshipForm}>
-              <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl gradient-text">Post a New Internship</DialogTitle>
-                  <DialogDescription className="text-gray-300">Fill in the details to create a new internship posting</DialogDescription>
+                  <DialogTitle className="text-lg sm:text-xl lg:text-2xl gradient-text">Post a New Internship</DialogTitle>
+                  <DialogDescription className="text-gray-300 text-sm sm:text-base">Fill in the details to create a new internship posting</DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleInternshipSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleInternshipSubmit} className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="internship-title" className="text-gray-300">Internship Title *</Label>
                       <Input 
@@ -697,18 +699,18 @@ export default function EmployerDashboard() {
                       placeholder="e.g., $3,000/month or Unpaid with benefits"
                     />
                   </div>
-                  <div className="flex justify-end gap-3">
+                  <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => setShowInternshipForm(false)}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 w-full sm:w-auto"
                     >
                       Cancel
                     </Button>
                     <Button 
                       type="submit" 
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full sm:w-auto"
                       disabled={loading}
                     >
                       {loading ? "Posting..." : "Post Internship"}
@@ -737,37 +739,37 @@ export default function EmployerDashboard() {
                   <div className="space-y-4">
                     {internships.map((internship) => (
                       <Card key={internship.id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800/70 transition-colors">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-xl font-semibold text-white">{internship.title}</h3>
-                                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                <h3 className="text-lg sm:text-xl font-semibold text-white truncate">{internship.title}</h3>
+                                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 self-start">
                                   <CheckCircle className="w-3 h-3 mr-1" />
                                   Active
                                 </Badge>
                               </div>
-                              <p className="text-gray-300 mb-3 line-clamp-2">{internship.description}</p>
-                              <div className="flex items-center gap-6 text-sm text-gray-400">
+                              <p className="text-gray-300 mb-3 line-clamp-2 text-sm sm:text-base">{internship.description}</p>
+                              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-4 lg:gap-6 text-xs sm:text-sm text-gray-400">
                                 <div className="flex items-center gap-1">
-                                  <MapPin className="w-4 h-4" />
-                                  {internship.location}
+                                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span className="truncate">{internship.location}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <DollarSign className="w-4 h-4" />
-                                  {internship.stipend && (internship.stipend.min ? `$${internship.stipend.min}` : '')}
+                                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span className="truncate">{internship.stipend && (internship.stipend.min ? `$${internship.stipend.min}` : '')}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Users className="w-4 h-4" />
-                                  {internship.applications} applications
+                                  <Users className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span>{internship.applications} apps</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Eye className="w-4 h-4" />
-                                  {internship.views} views
+                                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                  <span>{internship.views} views</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 ml-4">
+                            <div className="flex items-center justify-end gap-2">
                               <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -794,13 +796,13 @@ export default function EmployerDashboard() {
 
       {/* Job Posting Dialog */}
       <Dialog open={showJobForm} onOpenChange={setShowJobForm}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl gradient-text">Post a New Job</DialogTitle>
-            <DialogDescription className="text-gray-300">Fill in the details to create a new job posting</DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl lg:text-2xl gradient-text">Post a New Job</DialogTitle>
+            <DialogDescription className="text-gray-300 text-sm sm:text-base">Fill in the details to create a new job posting</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleJobSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleJobSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="job-title" className="text-gray-300">Job Title *</Label>
                 <Input 
@@ -897,18 +899,18 @@ export default function EmployerDashboard() {
                 placeholder="Describe the role, responsibilities, requirements, and what makes this position exciting..."
               />
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => setShowJobForm(false)}
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                className="border-gray-600 text-gray-300 hover:bg-gray-800 w-full sm:w-auto"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white w-full sm:w-auto"
                 disabled={loading}
               >
                 {loading ? "Posting..." : "Post Job"}

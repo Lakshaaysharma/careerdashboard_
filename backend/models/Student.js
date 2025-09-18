@@ -176,16 +176,15 @@ studentSchema.index({ email: 1 }); // For email searches
 
 // Pre-save middleware to update level based on points
 studentSchema.pre('save', function(next) {
-  // Calculate level based on total points
+  // Simple level calculation: every 100 points = 1 level
   // Level 1: 0-99 points
-  // Level 2: 100-299 points
-  // Level 3: 300-599 points
-  // Level 4: 600-999 points
-  // Level 5: 1000-1499 points
+  // Level 2: 100-199 points
+  // Level 3: 200-299 points
+  // Level 4: 300-399 points
   // And so on...
   
-  const newLevel = Math.floor(Math.sqrt(this.totalPoints / 100)) + 1;
-  const newNextLevelPoints = Math.pow(newLevel, 2) * 100;
+  const newLevel = Math.floor(this.totalPoints / 100) + 1;
+  const newNextLevelPoints = newLevel * 100;
   
   if (newLevel !== this.level) {
     this.level = newLevel;
@@ -267,9 +266,9 @@ studentSchema.methods.getProgressPercentage = function() {
 
 // Instance method to get level progress
 studentSchema.methods.getLevelProgress = function() {
-  const currentLevelPoints = Math.pow(this.level - 1, 2) * 100;
+  const currentLevelPoints = (this.level - 1) * 100;
   const pointsInCurrentLevel = this.totalPoints - currentLevelPoints;
-  const pointsNeededForLevel = this.nextLevelPoints - currentLevelPoints;
+  const pointsNeededForLevel = 100; // Always 100 points per level
   
   return Math.min(100, Math.round((pointsInCurrentLevel / pointsNeededForLevel) * 100));
 };

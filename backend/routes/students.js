@@ -486,6 +486,7 @@ router.get('/assignments/available', protect, asyncHandler(async (req, res) => {
               points: assignment.points,
               type: assignment.type,
               questions: assignment.questions || [],
+              timeLimit: assignment.timeLimit || 1800, // 30 minutes default
               teacherName: teacher.userId.name,
               teacherEmail: teacher.email, // Add teacher email
               createdAt: assignment.createdAt

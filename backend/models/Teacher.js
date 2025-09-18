@@ -74,6 +74,36 @@ const teacherSchema = new mongoose.Schema({
       enum: ['quiz', 'homework'],
       default: 'homework'
     }, // "quiz", "homework"
+    // Questions for quiz assignments
+    questions: [{
+      question: {
+        type: String,
+        required: function() { return this.parent().type === 'quiz'; }
+      },
+      type: {
+        type: String,
+        enum: ['multiple-choice', 'true-false', 'short-answer'],
+        default: 'multiple-choice'
+      },
+      options: [{
+        text: String,
+        isCorrect: {
+          type: Boolean,
+          default: false
+        }
+      }],
+      correctAnswer: mongoose.Schema.Types.Mixed, // For true/false or other answer types
+      points: {
+        type: Number,
+        default: 1
+      },
+      maxLength: Number // For short answer questions
+    }],
+    // Time limit for quiz in seconds
+    timeLimit: {
+      type: Number,
+      default: 1800 // 30 minutes default
+    },
     status: {
       type: String,
       enum: ['active', 'completed'],
@@ -175,6 +205,8 @@ teacherSchema.methods.createAssignment = async function(assignmentData) {
       dueDate: new Date(assignmentData.dueDate),
       points: parseInt(assignmentData.points),
       type: assignmentData.type || 'homework',
+      questions: assignmentData.questions || [],
+      timeLimit: assignmentData.timeLimit || 1800, // 30 minutes default
       status: 'active',
       totalStudents: 0,
       submittedCount: 0,

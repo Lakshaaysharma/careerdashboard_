@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   TrendingUp,
   Target,
+  Calendar,
   CalendarIcon,
   Star,
   Trophy,
@@ -50,6 +51,7 @@ import {
   MessageCircle,
   BadgeIcon as IdCard,
   Users,
+  GraduationCap,
 } from "lucide-react"
 
 export default function StudentDashboard() {
@@ -191,15 +193,18 @@ export default function StudentDashboard() {
         const studentData = await studentResponse.json()
         
         if (studentResponse.ok && studentData.success) {
+          console.log("Student data received:", studentData.data.student)
           setStudentData(studentData.data.student)
           // Update animated stats with real data
-          setAnimatedStats({
-            level: studentData.data.student.level,
-            points: studentData.data.student.totalPoints,
-            completedAssignments: studentData.data.student.completedAssignments,
-            streak: studentData.data.student.currentStreak,
-            rank: studentData.data.student.globalRank,
-          })
+          const newStats = {
+            level: studentData.data.student.level || 1,
+            points: studentData.data.student.totalPoints || 0,
+            completedAssignments: studentData.data.student.completedAssignments || 0,
+            streak: studentData.data.student.currentStreak || 0,
+            rank: studentData.data.student.globalRank || 0,
+          }
+          console.log("Setting animated stats:", newStats)
+          setAnimatedStats(newStats)
         } else {
           console.error("Failed to fetch student data:", studentData.message)
         }
@@ -325,6 +330,21 @@ export default function StudentDashboard() {
 
 
 
+  // Helper function to update animated stats
+  const updateAnimatedStats = (student: any) => {
+    if (student) {
+      const newStats = {
+        level: student.level || 1,
+        points: student.totalPoints || 0,
+        completedAssignments: student.completedAssignments || 0,
+        streak: student.currentStreak || 0,
+        rank: student.globalRank || 0,
+      }
+      console.log("Updating animated stats:", newStats)
+      setAnimatedStats(newStats)
+    }
+  }
+
   const fetchAssignmentData = async (token: string) => {
     setLoadingAssignments(true)
     try {
@@ -443,7 +463,17 @@ export default function StudentDashboard() {
 
       // For now, simulate assignment submission with a score
       const score = Math.floor(Math.random() * 30) + 70 // Random score between 70-100
-      const pointsEarned = Math.floor((score / 100) * assignment.points)
+      
+      // Award points based on performance (same as quiz logic)
+      let pointsEarned = 25; // Base points for completion
+      
+      if (score === 100) {
+        pointsEarned = 50; // Perfect assignment
+      } else if (score >= 90) {
+        pointsEarned = 40; // 90%+ assignment
+      } else if (score >= 80) {
+        pointsEarned = 30; // 80%+ assignment
+      }
 
       console.log("Submitting assignment:", {
         assignmentId: assignment.id,
@@ -472,9 +502,21 @@ export default function StudentDashboard() {
       if (response.ok && data.success) {
         // Show success message
         setError("") // Clear any previous errors
+        // Show point breakdown in toast
+        let pointMessage = `You earned ${pointsEarned} points with a score of ${score}%`;
+        if (score === 100) {
+          pointMessage += " 🎯 Perfect!";
+        } else if (score >= 90) {
+          pointMessage += " 🎯 Excellent!";
+        } else if (score >= 80) {
+          pointMessage += " 🎯 Great job!";
+        } else {
+          pointMessage += " 📝 Good work!";
+        }
+        
         toast({
           title: "Assignment Submitted!",
-          description: `You earned ${pointsEarned} points with a score of ${score}%`,
+          description: pointMessage,
           variant: "default",
         })
         // Refresh assignment data
@@ -516,6 +558,7 @@ export default function StudentDashboard() {
       console.log('Quiz Debug: assignment object keys:', Object.keys(assignment))
       console.log('Quiz Debug: assignment created:', assignment.createdAt)
       console.log('Quiz Debug: assignment id:', assignment.id || assignment._id)
+      console.log('Quiz Debug: assignment questions:', assignment.questions?.length || 0)
       
       // Ensure timeLimit is reasonable (between 1 minute and 3 hours)
       if (timeLimit < 60) {
@@ -526,31 +569,44 @@ export default function StudentDashboard() {
         timeLimit = 180 * 60
       }
       
+      // Set initial state properly
       setQuizTimeLeft(timeLimit)
-      setQuizStartTime(Date.now()) // Record when quiz started
+      const startTime = Date.now()
+      setQuizStartTime(startTime)
       
-      // Add a small delay before starting timer to prevent immediate submission
+      // Wait for state to be set, then start timer
       setTimeout(() => {
-        console.log('Quiz Debug: Starting timer with', timeLimit, 'seconds (after delay)')
+        console.log('Quiz Debug: Starting timer with', timeLimit, 'seconds')
+        
         // Start timer
         const timer = setInterval(() => {
-          setQuizTimeLeft((prev) => {
-            // Prevent auto-submission if quiz was started less than 10 seconds ago
-            const timeElapsed = (Date.now() - (quizStartTime || Date.now())) / 1000
-            if (prev <= 1 && timeElapsed >= 10) {
-              console.log('Quiz Debug: Timer expired after', timeElapsed, 'seconds, auto-submitting')
-              clearInterval(timer)
-              submitQuiz()
-              return 0
-            } else if (prev <= 1 && timeElapsed < 10) {
-              console.log('Quiz Debug: Timer would expire but quiz just started, extending by 30 minutes')
-              return 30 * 60 // Reset to 30 minutes if quiz just started
+          setQuizTimeLeft((prevTime) => {
+            console.log('Quiz Debug: Timer tick, time left:', prevTime)
+            
+            // Get current time elapsed since quiz started
+            const currentTimeElapsed = (Date.now() - startTime) / 1000
+            
+            // Prevent auto-submission if quiz was started less than 30 seconds ago
+            // This gives students time to read the first question
+            if (prevTime <= 1) {
+              if (currentTimeElapsed >= 30) {
+                console.log('Quiz Debug: Timer expired after', currentTimeElapsed, 'seconds, auto-submitting')
+                clearInterval(timer)
+                // Use setTimeout to avoid state update during render
+                setTimeout(() => submitQuiz(), 0)
+                return 0
+              } else {
+                console.log('Quiz Debug: Timer would expire but quiz just started, keeping at 1 second')
+                return 1 // Keep at 1 second until minimum time has passed
+              }
             }
-            return prev - 1
+            
+            return prevTime - 1
           })
         }, 1000)
+        
         setQuizTimer(timer)
-      }, 100) // Small delay to ensure state is properly set
+      }, 500) // Give more time for state to be properly set
     } else if (assignment.type === 'homework') {
       // For homework assignments, use file upload
       startHomework(assignment)
@@ -621,11 +677,23 @@ export default function StudentDashboard() {
     const timeElapsed = quizStartTime ? (Date.now() - quizStartTime) / 1000 : 0
     console.log('Quiz Debug: submitQuiz called after', timeElapsed, 'seconds')
     
-    if (timeElapsed < 5) {
+    // Increase minimum time to 10 seconds and add more validation
+    if (timeElapsed < 10) {
       console.log('Quiz Debug: Preventing immediate submission, quiz just started')
       toast({
         title: "Quiz Just Started",
-        description: "Please wait a moment before submitting the quiz.",
+        description: "Please wait at least 10 seconds before submitting the quiz to ensure questions are loaded properly.",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    // Validate that we have a quiz with questions
+    if (!currentQuiz || !currentQuiz.questions || currentQuiz.questions.length === 0) {
+      console.log('Quiz Debug: No quiz or questions found, cannot submit')
+      toast({
+        title: "Quiz Error",
+        description: "No quiz questions found. Please try again.",
         variant: "destructive",
       })
       return
@@ -637,7 +705,21 @@ export default function StudentDashboard() {
     }
 
     const score = calculateQuizScore()
-    const pointsEarned = Math.floor((score / 100) * currentQuiz.points)
+    
+    // Award points based on performance:
+    // 📝 Assignment completed: +25 points
+    // 🎯 Quiz 80%+: +30 points  
+    // 🎯 Quiz 90%+: +40 points
+    // 🎯 Perfect Quiz: +50 points
+    let pointsEarned = 25; // Base points for completion
+    
+    if (score === 100) {
+      pointsEarned = 50; // Perfect quiz
+    } else if (score >= 90) {
+      pointsEarned = 40; // 90%+ quiz
+    } else if (score >= 80) {
+      pointsEarned = 30; // 80%+ quiz
+    }
 
     try {
       const token = localStorage.getItem("token")
@@ -682,9 +764,21 @@ export default function StudentDashboard() {
         setQuizCompleted(true)
         // Clear any previous errors
         setError("")
+        // Show point breakdown in toast
+        let pointMessage = `You earned ${pointsEarned} points with a score of ${score}%`;
+        if (score === 100) {
+          pointMessage += " 🎯 Perfect Quiz!";
+        } else if (score >= 90) {
+          pointMessage += " 🎯 Excellent!";
+        } else if (score >= 80) {
+          pointMessage += " 🎯 Great job!";
+        } else {
+          pointMessage += " 📝 Keep practicing!";
+        }
+        
         toast({
           title: "Quiz Completed!",
-          description: `You earned ${pointsEarned} points with a score of ${score}%`,
+          description: pointMessage,
           variant: "default",
         })
         // Refresh assignment data
@@ -744,17 +838,13 @@ export default function StudentDashboard() {
   }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimatedStats({
-        level: studentData.level,
-        points: studentData.points,
-        completedAssignments: studentData.completedAssignments,
-        streak: studentData.currentStreak,
-        rank: studentData.globalRank,
-      })
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
+    if (studentData) {
+      const timer = setTimeout(() => {
+        updateAnimatedStats(studentData)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [studentData])
 
   const handleMentorBooking = (mentor: any) => {
     setSelectedMentor(mentor)
@@ -1325,22 +1415,27 @@ export default function StudentDashboard() {
         </div>
 
         <Tabs defaultValue="performance" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 bg-gray-800/50 p-1">
-            <TabsTrigger value="performance" className="data-[state=active]:bg-blue-600">
-              Performance
-            </TabsTrigger>
-            <TabsTrigger value="attendance" className="data-[state=active]:bg-cyan-600">
-              Attendance
-            </TabsTrigger>
-            <TabsTrigger value="assignments" className="data-[state=active]:bg-green-600">
-              Assignments
-            </TabsTrigger>
-            <TabsTrigger value="mentors" className="data-[state=active]:bg-pink-600">
-              Mentors
-            </TabsTrigger>
-            <TabsTrigger value="courses" className="data-[state=active]:bg-indigo-600">
-              Courses
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-gray-800/50 p-1 h-auto">
+          <TabsTrigger value="performance" className="data-[state=active]:bg-blue-600 flex-col sm:flex-row p-2 sm:p-3">
+            <TrendingUp className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Performance</span>
+          </TabsTrigger>
+          <TabsTrigger value="attendance" className="data-[state=active]:bg-cyan-600 flex-col sm:flex-row p-2 sm:p-3">
+            <Calendar className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Attendance</span>
+          </TabsTrigger>
+          <TabsTrigger value="assignments" className="data-[state=active]:bg-green-600 flex-col sm:flex-row p-2 sm:p-3">
+            <BookOpen className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Assignments</span>
+          </TabsTrigger>
+          <TabsTrigger value="mentors" className="data-[state=active]:bg-pink-600 flex-col sm:flex-row p-2 sm:p-3">
+            <Users className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Mentors</span>
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="data-[state=active]:bg-indigo-600 flex-col sm:flex-row p-2 sm:p-3">
+            <GraduationCap className="w-4 h-4 sm:mr-2 mb-1 sm:mb-0" />
+            <span className="text-xs sm:text-sm">Courses</span>
+          </TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance" className="space-y-6">
@@ -1445,15 +1540,7 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="mb-6">
-                    <div className="p-4 glass-card rounded-lg text-center">
-                      <Brain className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                      <p className="text-gray-400 text-lg">No quiz assignments completed yet</p>
-                      <p className="text-gray-500 text-sm mt-2">Complete quiz assignments to see your performance trend here.</p>
-                    </div>
-                  </div>
-                )}
+                ) : null}
 
                 {/* Assignment Scores */}
                 {assignmentHistory.length > 0 ? (
@@ -1553,7 +1640,7 @@ export default function StudentDashboard() {
                           onClick={() => startQuiz(assignment)}
                         >
                           <CheckCircle className="w-4 h-4 mr-1" />
-                          Submit Assignment
+                          {assignment.type === 'quiz' ? 'Take Quiz' : assignment.type === 'homework' ? 'Submit Homework' : 'Submit Assignment'}
                         </Button>
                       </div>
                     ))}
@@ -2186,23 +2273,23 @@ export default function StudentDashboard() {
 
       {/* Quiz Modal */}
       <Dialog open={showQuizModal} onOpenChange={setShowQuizModal}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl gradient-text flex items-center justify-between">
+            <DialogTitle className="text-lg sm:text-2xl gradient-text flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
               <div className="flex items-center">
-                <BookOpen className="w-6 h-6 mr-2" />
-                {currentQuiz?.title}
+                <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
+                <span className="truncate">{currentQuiz?.title}</span>
               </div>
               {quizTimeLeft > 0 && (
                 <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-red-400" />
-                  <span className={`text-lg font-mono ${quizTimeLeft < 300 ? 'text-red-400' : 'text-white'}`}>
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+                  <span className={`text-base sm:text-lg font-mono ${quizTimeLeft < 300 ? 'text-red-400' : 'text-white'}`}>
                     {formatTime(quizTimeLeft)}
                   </span>
                 </div>
               )}
             </DialogTitle>
-            <DialogDescription className="text-gray-300">
+            <DialogDescription className="text-gray-300 text-sm sm:text-base">
               {quizCompleted ? 'Quiz completed! Here are your results.' : 'Answer all questions to complete the quiz.'}
             </DialogDescription>
           </DialogHeader>
@@ -2211,7 +2298,7 @@ export default function StudentDashboard() {
             <div className="space-y-6">
               {/* Progress Bar */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-400">
+                <div className="flex justify-between text-xs sm:text-sm text-gray-400">
                   <span>Question {currentQuestionIndex + 1} of {currentQuiz?.questions?.length}</span>
                   <span>{Math.round(((currentQuestionIndex + 1) / (currentQuiz?.questions?.length || 1)) * 100)}%</span>
                 </div>
@@ -2222,7 +2309,7 @@ export default function StudentDashboard() {
               </div>
 
               {/* Current Question */}
-              {currentQuiz?.questions && currentQuiz.questions[currentQuestionIndex] && (
+              {currentQuiz?.questions && currentQuiz.questions.length > 0 && currentQuiz.questions[currentQuestionIndex] ? (
                 <div className="space-y-4">
                   <div className="p-4 glass-card rounded-lg">
                     <div className="flex items-center justify-between mb-3">
@@ -2234,7 +2321,7 @@ export default function StudentDashboard() {
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-white mb-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-4 leading-relaxed">
                       {currentQuiz.questions[currentQuestionIndex].question}
                     </h3>
 
@@ -2334,15 +2421,31 @@ export default function StudentDashboard() {
                     )}
                   </div>
                 </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-red-400 mb-4">⚠️</div>
+                  <h3 className="text-lg font-semibold text-white mb-2">No Questions Available</h3>
+                  <p className="text-gray-300 mb-4">
+                    This quiz doesn't have any questions loaded. Please contact your teacher.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={closeQuizModal}
+                    className="border-gray-600 text-gray-300 hover:bg-white/10"
+                  >
+                    Close Quiz
+                  </Button>
+                </div>
               )}
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between">
+              {/* Navigation Buttons - Only show if we have questions */}
+              {currentQuiz?.questions && currentQuiz.questions.length > 0 && (
+              <div className="flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0">
                 <Button
                   variant="outline"
                   onClick={previousQuestion}
                   disabled={currentQuestionIndex === 0}
-                  className="border-gray-600 text-gray-300 hover:bg-white/10"
+                  className="border-gray-600 text-gray-300 hover:bg-white/10 w-full sm:w-auto"
                 >
                   Previous
                 </Button>
@@ -2351,20 +2454,21 @@ export default function StudentDashboard() {
                   {currentQuestionIndex < (currentQuiz?.questions?.length || 0) - 1 ? (
                     <Button
                       onClick={nextQuestion}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 flex-1 sm:flex-none"
                     >
                       Next Question
                     </Button>
                   ) : (
                     <Button
                       onClick={submitQuiz}
-                      className="bg-gradient-to-r from-green-600 to-blue-600"
+                      className="bg-gradient-to-r from-green-600 to-blue-600 flex-1 sm:flex-none"
                     >
                       Submit Quiz
                     </Button>
                   )}
                 </div>
               </div>
+              )}
             </div>
           ) : (
             /* Quiz Results */

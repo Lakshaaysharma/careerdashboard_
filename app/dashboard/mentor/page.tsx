@@ -85,19 +85,26 @@ export default function MentorDashboard() {
 
       {/* Header */}
       <header className={`relative z-50 glass-card border-b border-white/10 transition-all duration-1000 ${isVisible ? "slide-up-animation" : "opacity-0"}`}>
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center neon-glow">
-                <Users className="w-6 h-6 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center neon-glow">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-3xl font-bold gradient-text">Mentor Dashboard</h1>
-                <p className="text-sm text-gray-400">{loading ? 'Loading profile...' : error ? error : `Welcome back, ${mentor?.name || 'Mentor'}`}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold gradient-text">Mentor Dashboard</h1>
+                <p className="text-xs sm:text-sm text-gray-400 truncate">
+                  {loading ? 'Loading profile...' : error ? error : `Welcome back, ${mentor?.name || 'Mentor'}`}
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <button onClick={() => setIsEditOpen(true)} className="px-4 py-2 border border-white/20 text-white hover:bg-white/10 rounded-lg transition-colors">Edit</button>
+            <div className="flex items-center justify-center sm:justify-end">
+              <button 
+                onClick={() => setIsEditOpen(true)} 
+                className="px-4 py-2 border border-white/20 text-white hover:bg-white/10 rounded-lg transition-colors w-full sm:w-auto"
+              >
+                Edit Profile
+              </button>
             </div>
           </div>
 
@@ -107,91 +114,113 @@ export default function MentorDashboard() {
 
       {/* Profile Summary */}
       {!loading && !error && mentor && (
-        <section className="relative z-10 px-6 pt-6">
+        <section className="relative z-10 px-4 sm:px-6 pt-4 sm:pt-6">
           <div className="container mx-auto">
-            <div className="glass-card p-6 md:p-8 rounded-2xl border border-white/10">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="glass-card p-4 sm:p-6 lg:p-8 rounded-2xl border border-white/10">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
                 {/* Left: Identity */}
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-lg sm:text-xl lg:text-2xl font-bold">
                     {(mentor.name || 'M').slice(0,2).toUpperCase()}
                   </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl font-semibold text-white">{mentor.name}</div>
-                    <div className="text-gray-300 flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-blue-300" />
-                      <span>{mentor.title || 'Mentor'} • <span className="text-blue-300">{mentor.company || '—'}</span></span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-semibold text-white truncate">{mentor.name}</div>
+                    <div className="text-gray-300 flex items-center gap-2 text-sm sm:text-base">
+                      <Briefcase className="w-4 h-4 text-blue-300 flex-shrink-0" />
+                      <span className="truncate">{mentor.title || 'Mentor'} • <span className="text-blue-300">{mentor.company || '—'}</span></span>
                     </div>
-                    <div className="text-gray-400 text-sm mt-1">{mentor.experience || '—'} experience</div>
+                    <div className="text-gray-400 text-xs sm:text-sm mt-1">{mentor.experience || '—'} experience</div>
                   </div>
                 </div>
 
-                {/* Right: Quick stats (vertical) */}
-                <div className="grid grid-cols-1 gap-3 w-full md:w-1/2">
-                  <div className="glass-card rounded-xl p-4 group flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400 text-sm">
-                      <DollarSign className="w-4 h-4" /> Rate
+                {/* Right: Quick stats (responsive grid) */}
+                <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-3 w-full lg:w-1/2">
+                  <div className="glass-card rounded-xl p-3 sm:p-4 group flex items-center justify-between">
+                    <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-xs sm:text-sm">
+                      <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" /> 
+                      <span className="hidden sm:inline">Rate</span>
                     </div>
-                    <div className="text-white text-lg font-semibold group-hover:scale-105 transition">{typeof mentor.hourlyRate === 'number' ? `$${mentor.hourlyRate}/hr` : '—'}</div>
+                    <div className="text-white text-sm sm:text-base lg:text-lg font-semibold group-hover:scale-105 transition">
+                      {typeof mentor.hourlyRate === 'number' ? `$${mentor.hourlyRate}/hr` : '—'}
+                    </div>
                   </div>
-                  <div className="glass-card rounded-xl p-4 group flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400 text-sm">
-                      <Users className="w-4 h-4" /> Sessions
+                  <div className="glass-card rounded-xl p-3 sm:p-4 group flex items-center justify-between">
+                    <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-xs sm:text-sm">
+                      <Users className="w-3 h-3 sm:w-4 sm:h-4" /> 
+                      <span className="hidden sm:inline">Sessions</span>
                     </div>
-                    <div className="text-white text-lg font-semibold group-hover:scale-105 transition">{mentor.stats?.totalSessions ?? 0}</div>
+                    <div className="text-white text-sm sm:text-base lg:text-lg font-semibold group-hover:scale-105 transition">
+                      {mentor.stats?.totalSessions ?? 0}
+                    </div>
                   </div>
-                  <div className="glass-card rounded-xl p-4 group flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400 text-sm">
-                      <Star className="w-4 h-4 text-yellow-400" /> Rating
+                  <div className="glass-card rounded-xl p-3 sm:p-4 group flex items-center justify-between">
+                    <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-xs sm:text-sm">
+                      <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" /> 
+                      <span className="hidden sm:inline">Rating</span>
                     </div>
-                    <div className="text-white text-lg font-semibold group-hover:scale-105 transition">{mentor.stats?.averageRating ?? '—'}</div>
+                    <div className="text-white text-sm sm:text-base lg:text-lg font-semibold group-hover:scale-105 transition">
+                      {mentor.stats?.averageRating ?? '—'}
+                    </div>
                   </div>
-                  <div className="glass-card rounded-xl p-4 group flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400 text-sm">
-                      <Clock className="w-4 h-4" /> Response
+                  <div className="glass-card rounded-xl p-3 sm:p-4 group flex items-center justify-between">
+                    <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-xs sm:text-sm">
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" /> 
+                      <span className="hidden sm:inline">Response</span>
                     </div>
-                    <div className="text-white text-lg font-semibold group-hover:scale-105 transition">{mentor.responseTime || '—'}</div>
+                    <div className="text-white text-sm sm:text-base lg:text-lg font-semibold group-hover:scale-105 transition">
+                      {mentor.responseTime || '—'}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Bio */}
               {mentor.bio && (
-                <p className="text-gray-300 mt-6 leading-relaxed">{mentor.bio}</p>
+                <p className="text-gray-300 mt-4 sm:mt-6 leading-relaxed text-sm sm:text-base">{mentor.bio}</p>
               )}
 
               {/* Meta rows */}
-              <div className="mt-6 grid grid-cols-1 gap-4 text-sm">
-                <div className="glass-card rounded-xl p-4 flex items-start gap-3">
-                  <Clock className="w-4 h-4 text-blue-400 mt-1" />
-                  <div>
-                    <div className="text-gray-400 mb-1">Availability</div>
-                    <div className="text-white">{mentor.availability || '—'}</div>
+              <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-sm">
+                <div className="glass-card rounded-xl p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
+                  <Clock className="w-4 h-4 text-blue-400 mt-1 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-gray-400 mb-1 text-xs sm:text-sm">Availability</div>
+                    <div className="text-white text-sm sm:text-base truncate">{mentor.availability || '—'}</div>
                   </div>
                 </div>
-                <div className="glass-card rounded-xl p-4 flex items-start gap-3">
-                  <Globe className="w-4 h-4 text-purple-400 mt-1" />
-                  <div>
-                    <div className="text-gray-400 mb-1">Timezone</div>
-                    <div className="text-white flex items-center gap-2"><MapPin className="w-4 h-4" />{mentor.timezone || '—'}</div>
+                <div className="glass-card rounded-xl p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
+                  <Globe className="w-4 h-4 text-purple-400 mt-1 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-gray-400 mb-1 text-xs sm:text-sm">Timezone</div>
+                    <div className="text-white text-sm sm:text-base flex items-center gap-2">
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      <span className="truncate">{mentor.timezone || '—'}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="glass-card rounded-xl p-4 flex items-start gap-3">
-                  <Languages className="w-4 h-4 text-green-400 mt-1" />
-                  <div>
-                    <div className="text-gray-400 mb-1">Languages</div>
-                    <div className="text-white">{Array.isArray(mentor.languages) ? mentor.languages.join(', ') : (mentor.languages || '—')}</div>
+                <div className="glass-card rounded-xl p-3 sm:p-4 flex items-start gap-2 sm:gap-3 sm:col-span-2 lg:col-span-1">
+                  <Languages className="w-4 h-4 text-green-400 mt-1 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-gray-400 mb-1 text-xs sm:text-sm">Languages</div>
+                    <div className="text-white text-sm sm:text-base">
+                      {Array.isArray(mentor.languages) ? mentor.languages.join(', ') : (mentor.languages || '—')}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Expertise / Skills chips */}
               {(mentor.expertise?.length || mentor.skills?.length) && (
-                <div className="mt-6">
-                  <div className="text-gray-400 text-sm mb-2">Expertise</div>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mt-4 sm:mt-6">
+                  <div className="text-gray-400 text-xs sm:text-sm mb-2">Expertise</div>
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
                     {(mentor.expertise || mentor.skills || []).map((tag: string, i: number) => (
-                      <span key={i} className="px-3 py-1 rounded-full text-xs bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-white/10 hover:from-blue-500/30 hover:to-purple-500/30 transition">{tag}</span>
+                      <span 
+                        key={i} 
+                        className="px-2 sm:px-3 py-1 rounded-full text-xs bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-white/10 hover:from-blue-500/30 hover:to-purple-500/30 transition"
+                      >
+                        {tag}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -203,9 +232,9 @@ export default function MentorDashboard() {
 
       {/* Edit Mentor Details Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="glass-card border-white/20 text-white max-w-3xl">
+        <DialogContent className="glass-card border-white/20 text-white w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl gradient-text">Edit Mentor Details</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl lg:text-2xl gradient-text">Edit Mentor Details</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={async (e) => {
@@ -250,59 +279,71 @@ export default function MentorDashboard() {
                 setIsSaving(false)
               }
             }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"
           >
-            <div className="md:col-span-2">
-              <label className="text-sm text-gray-300">Title</label>
-              <input name="title" defaultValue={mentor?.title || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+            <div className="sm:col-span-2">
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Title</label>
+              <input name="title" defaultValue={mentor?.title || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Company</label>
-              <input name="company" defaultValue={mentor?.company || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Company</label>
+              <input name="company" defaultValue={mentor?.company || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Experience</label>
-              <input name="experience" defaultValue={mentor?.experience || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Experience</label>
+              <input name="experience" defaultValue={mentor?.experience || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
-            <div className="md:col-span-2">
-              <label className="text-sm text-gray-300">Bio</label>
-              <textarea name="bio" rows={3} defaultValue={mentor?.bio || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
-            </div>
-            <div>
-              <label className="text-sm text-gray-300">Expertise (comma separated)</label>
-              <input name="expertise" defaultValue={(mentor?.expertise || []).join(', ')} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+            <div className="sm:col-span-2">
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Bio</label>
+              <textarea name="bio" rows={3} defaultValue={mentor?.bio || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base resize-none" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Skills (comma separated)</label>
-              <input name="skills" defaultValue={(mentor?.skills || []).join(', ')} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Expertise (comma separated)</label>
+              <input name="expertise" defaultValue={(mentor?.expertise || []).join(', ')} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Hourly Rate (USD)</label>
-              <input name="hourlyRate" type="number" min="0" defaultValue={mentor?.hourlyRate ?? ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Skills (comma separated)</label>
+              <input name="skills" defaultValue={(mentor?.skills || []).join(', ')} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Response Time</label>
-              <input name="responseTime" defaultValue={mentor?.responseTime || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Hourly Rate (USD)</label>
+              <input name="hourlyRate" type="number" min="0" defaultValue={mentor?.hourlyRate ?? ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Languages (comma separated)</label>
-              <input name="languages" defaultValue={Array.isArray(mentor?.languages) ? mentor.languages.join(', ') : (mentor?.languages || '')} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Response Time</label>
+              <input name="responseTime" defaultValue={mentor?.responseTime || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Timezone</label>
-              <input name="timezone" defaultValue={mentor?.timezone || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Languages (comma separated)</label>
+              <input name="languages" defaultValue={Array.isArray(mentor?.languages) ? mentor.languages.join(', ') : (mentor?.languages || '')} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
-            <div className="md:col-span-2">
-              <label className="text-sm text-gray-300">Availability</label>
-              <input name="availability" defaultValue={mentor?.availability || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+            <div>
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Timezone</label>
+              <input name="timezone" defaultValue={mentor?.timezone || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
-            <div className="md:col-span-2">
-              <label className="text-sm text-gray-300">Communication Methods (comma separated)</label>
-              <input name="communicationMethods" defaultValue={(mentor?.communicationMethods || []).join(', ')} className="w-full bg-white/10 border border-white/20 rounded-md p-3" />
+            <div className="sm:col-span-2">
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Availability</label>
+              <input name="availability" defaultValue={mentor?.availability || ''} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
             </div>
-            <div className="md:col-span-2 flex gap-3 mt-2">
-              <button type="button" onClick={() => setIsEditOpen(false)} className="px-4 py-2 border border-white/20 rounded-md">Cancel</button>
-              <button type="submit" disabled={isSaving} className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-md">{isSaving ? 'Saving...' : 'Save Changes'}</button>
+            <div className="sm:col-span-2">
+              <label className="text-xs sm:text-sm text-gray-300 block mb-1">Communication Methods (comma separated)</label>
+              <input name="communicationMethods" defaultValue={(mentor?.communicationMethods || []).join(', ')} className="w-full bg-white/10 border border-white/20 rounded-md p-2 sm:p-3 text-sm sm:text-base" />
+            </div>
+            <div className="sm:col-span-2 flex flex-col sm:flex-row gap-2 sm:gap-3 mt-2">
+              <button 
+                type="button" 
+                onClick={() => setIsEditOpen(false)} 
+                className="px-4 py-2 border border-white/20 rounded-md text-sm sm:text-base w-full sm:w-auto"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                disabled={isSaving} 
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-md text-sm sm:text-base w-full sm:w-auto"
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
             </div>
           </form>
         </DialogContent>
