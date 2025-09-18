@@ -326,14 +326,16 @@ export default function TeacherDashboard() {
       const data = await response.json()
       console.log('Students API response:', data)
 
-      if (response.ok && data.success) {
+      if (response.ok && data.success && data.data) {
         console.log('Setting available students:', data.data.students)
-        setAvailableStudents(data.data.students)
+        setAvailableStudents(data.data.students || [])
       } else {
-        console.error("Failed to fetch students:", data.message)
+        console.error("Failed to fetch students:", data?.message || 'No data returned')
+        setAvailableStudents([]) // Set empty array as fallback
       }
     } catch (error) {
       console.error("Failed to fetch students data:", error)
+      setAvailableStudents([]) // Set empty array as fallback
     } finally {
       setLoadingStudents(false)
     }
@@ -687,12 +689,24 @@ export default function TeacherDashboard() {
           const teacherData = await teacherResponse.json()
           console.log("Teacher API response:", teacherData)
           
-          if (teacherResponse.ok && teacherData.success) {
+          if (teacherResponse.ok && teacherData.success && teacherData.data) {
             setTeacherData(teacherData.data.teacher)
             console.log("Set teacher data successfully")
           } else {
-            console.error("Failed to fetch teacher data:", teacherData.message)
-            setError(teacherData.message || "Failed to fetch teacher dashboard data.")
+            console.error("Failed to fetch teacher data:", teacherData?.message || 'No data returned')
+            // Set default teacher data to prevent crashes
+            setTeacherData({
+              name: user?.name || 'Teacher',
+              subjects: [],
+              statistics: {
+                totalStudents: 0,
+                activeAssignments: 0,
+                completedAssignments: 0,
+                averageScore: 0
+              },
+              subjectStats: {},
+              recentAssignments: []
+            })
           }
         } catch (err) {
           console.error("Error fetching teacher data:", err)
@@ -730,22 +744,24 @@ export default function TeacherDashboard() {
           // Don't set error here, continue with existing teacher data
         }
 
-        // Fetch assignment data
+        // Fetch assignment data (don't fail if this errors)
         console.log("Fetching assignment data...")
         try {
           await fetchAssignmentData(token)
           console.log("Assignment data fetched successfully")
         } catch (error) {
           console.error("Error fetching assignment data:", error)
+          setAssignments([]) // Ensure we have an empty array
         }
 
-        // Fetch available students
+        // Fetch available students (don't fail if this errors)
         console.log("Fetching available students...")
         try {
           await fetchAvailableStudents(token)
           console.log("Available students fetched successfully")
         } catch (error) {
           console.error("Error fetching available students:", error)
+          setAvailableStudents([]) // Ensure we have an empty array
         }
       } catch (err) {
         console.error("General error in fetchUserAndTeacherData:", err)
@@ -891,6 +907,10 @@ export default function TeacherDashboard() {
 
   // Use real student performance data or empty array
   const studentPerformance = teacherData?.studentPerformance || []
+  
+  // Ensure assignments is always an array
+  const safeAssignments = assignments || []
+  const safeAvailableStudents = availableStudents || []
 
 
   const handleCreateAssignment = async () => {
@@ -1239,7 +1259,7 @@ export default function TeacherDashboard() {
 
   // Get available subjects for assignment filter dropdown
   const getAvailableSubjectsForAssignmentFilter = () => {
-    const subjects = new Set(assignments.map(assignment => assignment.subject))
+    const subjects = new Set(safeAssignments.map(assignment => assignment.subject))
     return Array.from(subjects).sort()
   }
 
@@ -2083,7 +2103,7 @@ export default function TeacherDashboard() {
               ) : (() => {
                 console.log('Current assignments state:', assignments)
                 console.log('Selected subject:', selectedSubject)
-                const displayAssignments = selectedSubject ? getSubjectAssignments() : assignments
+                const displayAssignments = selectedSubject ? getSubjectAssignments() : safeAssignments
                 console.log('Display assignments:', displayAssignments)
                 const filteredAssignments = getFilteredAssignments(displayAssignments)
                 console.log('Filtered assignments:', filteredAssignments)
@@ -2246,7 +2266,6 @@ export default function TeacherDashboard() {
                                   Enrolled in: {student.enrolledSubject}
                                 </p>
                                 <div className="space-y-1">
-                                  <p className="text-xs text-green-400">Progress: {student.progress || 0}%</p>
                                   <p className="text-xs text-gray-500">Enrolled: {new Date(student.enrolledAt).toLocaleDateString()}</p>
                                   <p className="text-xs text-purple-400">Status: {student.status}</p>
                                 </div>
