@@ -752,14 +752,14 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {courseCategories.map((cat, idx) => (
-              <Link key={idx} href={cat.href} className="block">
-                <div className={`rounded-2xl ${cat.color} hover:opacity-90 transition-opacity shadow-lg p-8 flex items-center justify-center h-32 glass-card-hover`}>
+              <div key={idx} className="block">
+                <div className={`rounded-2xl ${cat.color} hover:opacity-90 transition-opacity cursor-default shadow-lg p-8 flex items-center justify-center h-32 glass-card-hover`}>
                   <div className="flex items-center space-x-4">
                     <cat.icon className="w-8 h-8 text-white" />
                     <span className="text-2xl font-semibold text-white">{cat.label}</span>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -804,11 +804,6 @@ export default function HomePage() {
       <section className="relative z-10 py-20 sm:py-24 lg:py-32 px-4 sm:px-6">
         <div className="container mx-auto">
           <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <Badge className="bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-300 border-green-500/30 mb-6 sm:mb-8 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4">
-              <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-              Learn From Our Teachers
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 ml-2 sm:ml-3" />
-            </Badge>
             <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 gradient-text text-glow">Courses Taught by Our Teachers</h3>
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 max-w-5xl mx-auto leading-relaxed px-4">
               Explore top courses curated and taught by experienced industry professionals.
@@ -817,31 +812,48 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
             {teacherCourses.map((item) => (
-              <Card key={item.id} className="glass-card-hover group relative overflow-hidden">
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl text-white">{item.courses[0]?.title}</CardTitle>
-                      <CardDescription className="text-sm text-gray-400">{item.courses[0]?.outcome}</CardDescription>
-                    </div>
-                    <div className="text-right">
-                      <Badge className={`${item.badgeColor} text-white mb-2`}>{item.badge}</Badge>
-                      <div className="flex items-center justify-end space-x-2">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm text-gray-300">{item.rating}</span>
-                        <span className="text-sm text-gray-400">({item.studentsTotal.toLocaleString()} students)</span>
-                      </div>
-                    </div>
+              <Card key={item.id} className="glass-card-hover group relative overflow-hidden border border-white/10">
+                <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                
+                {/* Course Icon/Header */}
+                <div className={`h-2 bg-gradient-to-r ${item.color}`}></div>
+                
+                <CardHeader className="relative z-10 p-6">
+                  {/* Main Course Title */}
+                  <div className="mb-6">
+                    <CardTitle className="text-xl font-bold text-white mb-3 leading-tight">
+                      {item.courses[0]?.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-300 text-sm leading-relaxed">
+                      {item.courses[0]?.outcome}
+                    </CardDescription>
                   </div>
-                  <div className="space-y-3">
-                    {item.courses.map((c, i) => (
-                      <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/10">
-                        <div className="text-white font-semibold line-clamp-1">{c.title}</div>
-                        <div className="text-sm text-gray-400 line-clamp-2">{c.outcome}</div>
-                        <div className="text-xs text-gray-500 mt-1">{c.students.toLocaleString()} students</div>
-                      </div>
-                    ))}
+                  
+                  {/* Technologies/Skills Section */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-300 mb-3">Technologies you'll master:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {item.id === "t1" && ["React", "Node.js", "MongoDB", "AWS", "JavaScript", "Express"].map((skill, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-blue-500/20 text-blue-300 rounded-full text-xs font-medium border border-blue-500/30">
+                          {skill}
+                        </span>
+                      ))}
+                      {item.id === "t2" && ["Python", "TensorFlow", "Pandas", "SQL", "Scikit-learn", "Jupyter"].map((skill, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-xs font-medium border border-purple-500/30">
+                          {skill}
+                        </span>
+                      ))}
+                      {item.id === "t3" && ["Figma", "Adobe XD", "Sketch", "Prototyping", "User Research", "Wireframing"].map((skill, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-pink-500/20 text-pink-300 rounded-full text-xs font-medium border border-pink-500/30">
+                          {skill}
+                        </span>
+                      ))}
+                      {item.id === "t4" && ["Google Ads", "SEO", "Analytics", "Facebook Ads", "Content Marketing", "A/B Testing"].map((skill, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-green-500/20 text-green-300 rounded-full text-xs font-medium border border-green-500/30">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </CardHeader>
               </Card>
@@ -854,10 +866,6 @@ export default function HomePage() {
       <section className="relative z-10 py-32 px-6">
         <div className="container mx-auto">
           <div className="text-center mb-20">
-            <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 mb-8 text-xl px-8 py-4">
-              <Users className="w-6 h-6 mr-3" />
-              Expert Mentorship
-            </Badge>
             <h3 className="text-7xl font-bold mb-8 gradient-text text-glow">Connect with Industry Mentors</h3>
             <p className="text-3xl text-gray-300 max-w-5xl mx-auto leading-relaxed">
               Get personalized guidance from senior professionals at top tech companies. Accelerate your career growth
@@ -885,10 +893,6 @@ export default function HomePage() {
       <section className="relative z-10 py-20 sm:py-24 lg:py-32 px-4 sm:px-6">
         <div className="container mx-auto">
           <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <Badge className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border-yellow-500/30 mb-6 sm:mb-8 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4">
-              <Star className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-              Success Stories
-            </Badge>
             <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 gradient-text text-glow">Real Results, Real People</h3>
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 px-4">Hear from our community of successful career shapers</p>
           </div>
@@ -981,20 +985,6 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-12 text-sm sm:text-base lg:text-lg text-gray-400">
-                <div className="flex items-center hover-scale">
-                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-green-400" />
-                  <span className="whitespace-nowrap">100% Secure</span>
-                </div>
-                <div className="flex items-center hover-scale">
-                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-400" />
-                  <span className="whitespace-nowrap">Setup in 2 minutes</span>
-                </div>
-                <div className="flex items-center hover-scale">
-                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-purple-400" />
-                  <span className="whitespace-nowrap">Used by 50k+ students</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1002,7 +992,7 @@ export default function HomePage() {
       {/* Enhanced Responsive Footer */}
       <footer className="relative z-10 glass-card border-t border-white/10 py-12 sm:py-16 lg:py-20 px-4 sm:px-6 mt-20 sm:mt-24 lg:mt-32">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-12">
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center neon-glow">
@@ -1011,18 +1001,8 @@ export default function HomePage() {
                 <h3 className="text-3xl font-bold gradient-text">ShapingCareer</h3>
               </div>
               <p className="text-gray-400 text-lg leading-relaxed">
-                Empowering the next generation of tech leaders with AI-powered career intelligence.
+                Online learning platform for career development and professional growth.
               </p>
-              <div className="flex space-x-4">
-                {["Twitter", "LinkedIn", "GitHub", "Discord"].map((social, index) => (
-                  <div
-                    key={index}
-                    className="w-12 h-12 glass-card rounded-xl flex items-center justify-center hover-lift cursor-pointer"
-                  >
-                    <span className="text-sm font-bold text-white">{social[0]}</span>
-                  </div>
-                ))}
-              </div>
             </div>
 
             <div>
@@ -1046,32 +1026,6 @@ export default function HomePage() {
                 <li>
                   <Link href="/mentors" className="hover:text-white transition-colors hover-scale inline-block">
                     Mentorship
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-6 text-xl">Resources</h4>
-              <ul className="space-y-4 text-gray-400 text-lg">
-                <li>
-                  <Link href="/blog" className="hover:text-white transition-colors hover-scale inline-block">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/guides" className="hover:text-white transition-colors hover-scale inline-block">
-                    Career Guides
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/webinars" className="hover:text-white transition-colors hover-scale inline-block">
-                    Webinars
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/community" className="hover:text-white transition-colors hover-scale inline-block">
-                    Community
                   </Link>
                 </li>
               </ul>
