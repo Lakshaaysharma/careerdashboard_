@@ -274,7 +274,7 @@ export default function TeacherDashboard() {
     setLoadingAssignments(true)
     try {
       console.log('Fetching assignments...')
-      const response = await fetch("${config.apiUrl}/api/teachers/assignments/all", {
+      const response = await apiCall("/api/teachers/assignments/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -301,7 +301,7 @@ export default function TeacherDashboard() {
     setLoadingStudents(true)
     try {
       console.log('Fetching students with token:', !!token)
-      const response = await fetch("${config.apiUrl}/api/teachers/students", {
+      const response = await apiCall("/api/teachers/students", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -557,7 +557,7 @@ export default function TeacherDashboard() {
         // Fetch user data from API
         console.log("Fetching user data from API...")
         try {
-          const userResponse = await fetch("${config.apiUrl}/api/auth/me", {
+          const userResponse = await apiCall("/api/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -582,7 +582,7 @@ export default function TeacherDashboard() {
         // Fetch teacher dashboard data
         console.log("Fetching teacher dashboard data...")
         try {
-          const teacherResponse = await fetch("${config.apiUrl}/api/teachers/dashboard", {
+          const teacherResponse = await apiCall("/api/teachers/dashboard", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -605,7 +605,7 @@ export default function TeacherDashboard() {
         // Fetch teacher profile data (institute, class, section, batch year, courses)
         console.log("Fetching teacher profile data...")
         try {
-          const profileResponse = await fetch("${config.apiUrl}/api/teacher-profiles/profile", {
+          const profileResponse = await apiCall("/api/teacher-profiles/profile", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -810,7 +810,7 @@ export default function TeacherDashboard() {
         return
       }
 
-      const response = await fetch("${config.apiUrl}/api/teachers/assignments", {
+      const response = await apiCall("/api/teachers/assignments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -911,7 +911,7 @@ export default function TeacherDashboard() {
       }
 
       // Send update to backend
-      const response = await fetch("${config.apiUrl}/api/teachers/subjects", {
+      const response = await apiCall("/api/teachers/subjects", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -987,7 +987,7 @@ export default function TeacherDashboard() {
       }
 
       // First, update the teacher profile with complete information
-      const profileResponse = await fetch("${config.apiUrl}/api/teacher-profiles/profile", {
+      const profileResponse = await apiCall("/api/teacher-profiles/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1019,7 +1019,7 @@ export default function TeacherDashboard() {
       }
 
       // Then, update the subjects (keeping the existing logic for backward compatibility)
-      const subjectsResponse = await fetch("${config.apiUrl}/api/teachers/subjects", {
+          const subjectsResponse = await apiCall("/api/teachers/subjects", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1375,7 +1375,7 @@ export default function TeacherDashboard() {
         return
       }
 
-      const response = await fetch("${config.apiUrl}/api/teachers/generate-quiz", {
+      const response = await apiCall("/api/teachers/generate-quiz", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1440,7 +1440,7 @@ export default function TeacherDashboard() {
       }
 
       // Fetch teacher profile data to get updated hierarchy information
-      const profileResponse = await fetch("${config.apiUrl}/api/teacher-profiles/profile", {
+      const profileResponse = await apiCall("/api/teacher-profiles/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -1495,7 +1495,7 @@ export default function TeacherDashboard() {
       const token = localStorage.getItem("token")
       if (!token) return
 
-      const response = await fetch("${config.apiUrl}/api/attendance", {
+      const response = await apiCall("/api/attendance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1552,7 +1552,7 @@ export default function TeacherDashboard() {
       const attendancePromises = bulkAttendanceData
         .filter(student => student.attendanceStatus)
         .map(student => 
-          fetch("${config.apiUrl}/api/attendance", {
+          apiCall("/api/attendance", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
