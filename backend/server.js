@@ -44,6 +44,9 @@ if (process.env.NODE_ENV === 'production') {
   allowedOrigins.push('https://careerdashboard.vercel.app');
   allowedOrigins.push('https://career-dashboard.vercel.app');
   allowedOrigins.push('https://careerdashboard-vwue.onrender.com');
+  // Add common Vercel deployment patterns
+  allowedOrigins.push(/https:\/\/.*\.vercel\.app$/);
+  allowedOrigins.push(/https:\/\/career-dashboard.*\.vercel\.app$/);
 } else {
   // Development origins
   allowedOrigins.push('http://localhost:3000');
