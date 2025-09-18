@@ -99,7 +99,7 @@ export default function AptitudeTestClient() {
       if (!selectedSubject) return
       try {
         setLoading(true)
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000"
+        const base = process.env.NEXT_PUBLIC_API_URL || "https://careerdashboard-vwue.onrender.com"
         const url = `${base}/api/quiz?subject=${encodeURIComponent(selectedSubject)}&difficulty=intermediate&count=8`
         const res = await fetch(url)
         const data = await res.json()

@@ -33,6 +33,7 @@ import {
   Award,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { apiCall } from "@/lib/config"
 
 export default function EmployerDashboard() {
   // All hooks at the top
@@ -100,7 +101,7 @@ export default function EmployerDashboard() {
         }
         
         // Fetch user data
-        const userResponse = await fetch("http://localhost:5000/api/auth/profile", {
+        const userResponse = await apiCall("/api/auth/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -111,7 +112,7 @@ export default function EmployerDashboard() {
           setUser(userData.data)
           
           // Fetch employer dashboard data
-          const employerResponse = await fetch("http://localhost:5000/api/employers/dashboard", {
+          const employerResponse = await apiCall("/api/employers/dashboard", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -155,7 +156,7 @@ export default function EmployerDashboard() {
         return
       }
 
-      const response = await fetch("http://localhost:5000/api/employers/jobs", {
+      const response = await apiCall("/api/employers/jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -182,7 +183,7 @@ export default function EmployerDashboard() {
         setShowJobForm(false)
         
         // Refresh employer data
-        const employerResponse = await fetch("http://localhost:5000/api/employers/dashboard", {
+        const employerResponse = await apiCall("/api/employers/dashboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -212,7 +213,7 @@ export default function EmployerDashboard() {
         setError("Not authenticated. Please log in.");
         return;
       }
-      const response = await fetch("http://localhost:5000/api/employers/internships", {
+      const response = await apiCall("/api/employers/internships", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -236,7 +237,7 @@ export default function EmployerDashboard() {
         setShowInternshipForm(false);
         
         // Refresh employer data
-        const employerResponse = await fetch("http://localhost:5000/api/employers/dashboard", {
+        const employerResponse = await apiCall("/api/employers/dashboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -268,7 +269,7 @@ export default function EmployerDashboard() {
         return
       }
 
-      const response = await fetch(`http://localhost:5000/api/employers/jobs/${id}`, {
+      const response = await apiCall(`/api/employers/jobs/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -281,7 +282,7 @@ export default function EmployerDashboard() {
         setJobs(jobs.filter(job => job.id !== id))
         
         // Refresh employer data
-        const employerResponse = await fetch("http://localhost:5000/api/employers/dashboard", {
+        const employerResponse = await apiCall("/api/employers/dashboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

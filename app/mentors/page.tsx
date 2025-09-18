@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FloatingParticles } from "@/components/ui/floating-particles"
+import { apiCall } from "@/lib/config"
 import {
   Users,
   ArrowLeft,
@@ -46,7 +47,7 @@ export default function MentorsPage() {
     try {
       setIsLoading(true)
       setError("")
-      const res = await fetch('http://localhost:5000/api/mentors?page=1&limit=1000')
+      const res = await apiCall('/api/mentors?page=1&limit=1000')
       const json = await res.json()
       if (!res.ok || !json?.success) throw new Error(json?.message || 'Failed to load mentors')
       const list = Array.isArray(json?.data?.mentors) ? json.data.mentors : []
@@ -100,7 +101,7 @@ export default function MentorsPage() {
         return
       }
 
-      const response = await fetch('http://localhost:5000/api/bookings', {
+      const response = await apiCall('/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

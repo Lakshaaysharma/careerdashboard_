@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, DollarSign, Building, Search, TrendingUp } from "lucide-react"
+import { apiCall } from "@/lib/config"
 
 interface Job {
   _id: string;
@@ -32,7 +33,7 @@ export default function JobsPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/jobs");
+      const response = await apiCall("/api/jobs");
       const data = await response.json();
       if (data.success) {
         setJobs(data.data);
@@ -192,7 +193,7 @@ export default function JobsPage() {
               try {
                 setIsSubmitting(true)
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-                const res = await fetch('http://localhost:5000/api/applications?name=' + encodeURIComponent((fd.get('name') as string) || '') + '&email=' + encodeURIComponent((fd.get('email') as string) || '') + '&phone=' + encodeURIComponent((fd.get('phone') as string) || ''), {
+                const res = await apiCall('/api/applications?name=' + encodeURIComponent((fd.get('name') as string) || '') + '&email=' + encodeURIComponent((fd.get('email') as string) || '') + '&phone=' + encodeURIComponent((fd.get('phone') as string) || ''), {
                   method: 'POST',
                   headers: token ? { 'Authorization': `Bearer ${token}` } as any : undefined,
                   body: fd

@@ -183,7 +183,7 @@ export default function SignUpPage() {
       setIsLoading(true)
       
       // Send hierarchy data to backend to update student profile
-      const response = await fetch('http://localhost:5000/api/students/update-hierarchy', {
+      const response = await apiCall('/api/students/update-hierarchy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ export default function SignUpPage() {
         courses: setupData.courses
       }
       
-      const response = await fetch('http://localhost:5000/api/teachers/setup', {
+      const response = await apiCall('/api/teachers/setup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -267,7 +267,7 @@ export default function SignUpPage() {
   const handleMentorSetupComplete = async (setupData: any) => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:5000/api/mentors/me', {
+      const response = await apiCall('/api/mentors/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

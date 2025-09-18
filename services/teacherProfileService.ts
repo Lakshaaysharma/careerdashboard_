@@ -1,6 +1,6 @@
 import { TeacherSetupData } from '@/components/ui/teacher-hierarchy-form'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://careerdashboard-vwue.onrender.com/api'
 
 export interface TeacherProfile {
   instituteName: string

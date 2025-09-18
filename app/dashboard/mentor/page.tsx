@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { FloatingParticles } from "@/components/ui/floating-particles"
+import { apiCall } from "@/lib/config"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   Users,
@@ -41,7 +42,7 @@ export default function MentorDashboard() {
       try {
         setLoading(true)
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-        const res = await fetch('http://localhost:5000/api/mentors/me', {
+        const res = await apiCall('/api/mentors/me', {
           headers: { 'Authorization': token ? `Bearer ${token}` : '' }
         })
         const json = await res.json()
@@ -231,7 +232,7 @@ export default function MentorDashboard() {
               try {
                 setIsSaving(true)
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-                const res = await fetch('http://localhost:5000/api/mentors/me', {
+                const res = await apiCall('/api/mentors/me', {
                   method: 'PUT',
                   headers: {
                     'Content-Type': 'application/json',

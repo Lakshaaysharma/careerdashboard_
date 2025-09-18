@@ -20,7 +20,7 @@ export default function PaymentSuccessClient() {
         return
       }
       try {
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000"
+        const base = process.env.NEXT_PUBLIC_API_URL || "https://careerdashboard-vwue.onrender.com"
         const res = await fetch(`${base}/api/mentors/${mentorId}`)
         const json = await res.json()
         if (!res.ok || !json.success) throw new Error(json.message || 'Failed to load mentor')

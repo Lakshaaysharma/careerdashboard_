@@ -5,6 +5,7 @@ import { Button } from './button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { Label } from './label'
 import { Loader2 } from 'lucide-react'
+import { apiCall } from '@/lib/config'
 
 declare global {
   interface Window {
@@ -87,11 +88,8 @@ export function GoogleAuth({ role, onSuccess, onError, isLoading, setIsLoading }
     setIsLoading(true)
     
     try {
-      const result = await fetch('http://localhost:5000/api/auth/google', {
+      const result = await apiCall('/api/auth/google', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           idToken: response.credential,
           role: selectedRole,

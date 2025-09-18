@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { apiCall } from "@/lib/config"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { useState, useEffect } from "react"
@@ -22,13 +23,13 @@ export default function ApplicantsPage() {
         const token = localStorage.getItem("token")
         
         // Fetch job applications
-        const jobRes = await fetch("http://localhost:5000/api/employers/applications", {
+        const jobRes = await apiCall("/api/employers/applications", {
           headers: { Authorization: `Bearer ${token}` }
         })
         const jobData = await jobRes.json()
         
         // Fetch internship applications
-        const internshipRes = await fetch("http://localhost:5000/api/employers/internship-applications", {
+        const internshipRes = await apiCall("/api/employers/internship-applications", {
           headers: { Authorization: `Bearer ${token}` }
         })
         const internshipData = await internshipRes.json()
@@ -88,7 +89,7 @@ export default function ApplicantsPage() {
           </span>
         )}
         {applicant.resume?.url && (
-          <a href={`http://localhost:5000${applicant.resume.url}`} target="_blank" rel="noreferrer" className="px-2 py-1 rounded bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-500/30 ml-1">Resume</a>
+          <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://careerdashboard-vwue.onrender.com'}${applicant.resume.url}`} target="_blank" rel="noreferrer" className="px-2 py-1 rounded bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-500/30 ml-1">Resume</a>
         )}
         <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ml-1 border shadow-sm ${applicant.fitStatus === 'fit' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
           {applicant.fitStatus === 'fit' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />} 

@@ -40,12 +40,14 @@ const allowedOrigins = [
 // Add additional origins for production
 if (process.env.NODE_ENV === 'production') {
   // Add your production frontend domains here
-  // allowedOrigins.push('https://your-frontend-domain.com');
+  allowedOrigins.push('https://shapingcareer.com');
+  allowedOrigins.push('https://careerdashboard.vercel.app');
+  allowedOrigins.push('https://career-dashboard.vercel.app');
+  allowedOrigins.push('https://careerdashboard-vwue.onrender.com');
 } else {
-// Change this line:
-// allowedOrigins.push('https://your-frontend-domain.com');
-allowedOrigins.push('https://shapingcareer.com');
-allowedOrigins.push('https://careerdashboard.vercel.app');
+  // Development origins
+  allowedOrigins.push('http://localhost:3000');
+  allowedOrigins.push('http://127.0.0.1:3000');
 }
 
 // Socket.IO setup

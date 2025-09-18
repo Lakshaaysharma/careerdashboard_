@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Clock, DollarSign, Building, Search, TrendingUp } from "lucide-react"
+import { apiCall } from "@/lib/config"
 
 interface Internship {
   _id: string;
@@ -33,7 +34,7 @@ export default function InternshipsPage() {
   useEffect(() => {
     const fetchInternships = async () => {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/internships");
+      const response = await apiCall("/api/internships");
       const data = await response.json();
       if (data.success && data.data) {
         setInternships(data.data);
@@ -203,7 +204,7 @@ export default function InternshipsPage() {
               try {
                 setIsSubmitting(true)
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-                const res = await fetch('http://localhost:5000/api/internship-applications?name=' + encodeURIComponent((fd.get('name') as string) || '') + '&email=' + encodeURIComponent((fd.get('email') as string) || '') + '&phone=' + encodeURIComponent((fd.get('phone') as string) || ''), {
+                const res = await apiCall('/api/internship-applications?name=' + encodeURIComponent((fd.get('name') as string) || '') + '&email=' + encodeURIComponent((fd.get('email') as string) || '') + '&phone=' + encodeURIComponent((fd.get('phone') as string) || ''), {
                   method: 'POST',
                   headers: token ? { 'Authorization': `Bearer ${token}` } as any : undefined,
                   body: fd
