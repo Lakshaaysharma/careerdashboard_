@@ -1828,6 +1828,15 @@ export default function TeacherDashboard() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text mb-2">Welcome back, {user.name?.split(' ')[0]}!</h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-300">Manage your courses and empower the next generation</p>
           </div>
+          {user?.email && (
+            <div className="mt-4 sm:mt-0">
+              <Link href={`/startup-ideas?name=${encodeURIComponent(user.name || '')}&email=${encodeURIComponent(user.email || '')}&role=teacher`}>
+                <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                  Submit Startup Idea
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
       {/* Stats Overview */}

@@ -25,6 +25,7 @@ const applicationsRoutes = require('./routes/applications');
 const internshipApplicationsRoutes = require('./routes/internship-applications');
 const bookingsRoutes = require('./routes/bookings');
 const attendanceRoutes = require('./routes/attendance');
+const User = require('./models/User');
 const { connectDB } = require('./config/database');
 
 const app = express();
@@ -134,6 +135,18 @@ app.use('*', (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   
+  // Handle Mongo duplicate key errors (e.g., unique index violations)
+  if (err && (err.code === 11000 || err.name === 'MongoServerError' && err.code === 11000)) {
+    const duplicatedFields = Object.keys(err.keyValue || {});
+    return res.status(409).json({
+      error: 'Duplicate Key',
+      message: duplicatedFields.length
+        ? `Duplicate value for field(s): ${duplicatedFields.join(', ')}`
+        : 'Duplicate key error',
+      details: process.env.NODE_ENV === 'development' ? err.keyValue : undefined
+    });
+  }
+  
   if (err.name === 'ValidationError') {
     return res.status(400).json({
       error: 'Validation Error',
@@ -221,6 +234,9 @@ const startServer = async () => {
     // Connect to database
     await connectDB();
     
+    // Ensure indexes are correct for email + role multi-account support
+    await ensureUserIndexes();
+    
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
@@ -236,3 +252,29 @@ const startServer = async () => {
 startServer();
 
 module.exports = app; 
+
+// Ensures the users collection has the intended indexes
+async function ensureUserIndexes() {
+  try {
+    const collection = User.collection;
+    const indexes = await collection.indexes();
+    const emailOnly = indexes.find((idx) => idx.key && idx.key.email === 1 && !idx.key.role);
+    // Drop legacy unique email index if present
+    if (emailOnly && emailOnly.unique) {
+      try {
+        await collection.dropIndex(emailOnly.name);
+        console.log(`🧹 Dropped legacy unique index ${emailOnly.name} on users.email`);
+      } catch (dropErr) {
+        console.warn('Could not drop legacy email index:', dropErr.message);
+      }
+    }
+
+    // Ensure compound unique index on (email, role)
+    await collection.createIndex({ email: 1, role: 1 }, { unique: true, name: 'email_role_unique' });
+    // Ensure non-unique helper index on email for faster lookups
+    await collection.createIndex({ email: 1 }, { name: 'email_non_unique' });
+    console.log('✅ Ensured users indexes: email_role_unique (unique), email_non_unique');
+  } catch (idxErr) {
+    console.warn('Index ensure failed (will continue):', idxErr.message);
+  }
+}

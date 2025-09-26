@@ -428,6 +428,16 @@ export default function EmployerDashboard() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text mb-2">Welcome back, {dashboardData.name?.split(' ')[0]}!</h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-300">Manage your job postings and find the perfect candidates</p>
           </div>
+          {/* Quick action: submit startup idea */}
+          {user?.email && (
+            <div className="mt-4">
+              <Link href={`/startup-ideas?name=${encodeURIComponent(user.name || '')}&email=${encodeURIComponent(user.email || '')}&role=employer`}>
+                <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                  Submit Startup Idea
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}

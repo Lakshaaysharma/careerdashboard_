@@ -33,6 +33,20 @@ export default function TestResultsPage() {
     }
   }, [])
 
+  // Helper to map score to recommendation message
+  const getMatchMessage = (score: number) => {
+    if (score < 50) {
+      return "No Match – Recommend to sharpen skills";
+    }
+    if (score >= 50 && score < 75) {
+      return "Potential of Good Match with focus on skill development";
+    }
+    if (score >= 75 && score < 90) {
+      return "Great Match – keep upskilling";
+    }
+    return "Excellent Match – acquire advanced skills to excel";
+  }
+
   const recommendedCourses = [
     {
       id: 1,
@@ -172,6 +186,7 @@ export default function TestResultsPage() {
           <CardContent className="text-center px-4 sm:px-6">
             <div className="text-2xl sm:text-3xl mb-4 sm:mb-6 text-green-400">{results.careerMatch}% Match</div>
             <Progress value={results.careerMatch} className="h-3 sm:h-4 bg-gray-800 mb-4 sm:mb-6" />
+            <p className="text-sm sm:text-base text-gray-400 mb-2">{getMatchMessage(results.careerMatch)}</p>
             <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
               Your cognitive profile shows exceptional alignment with {results.recommendedCareer} roles, combining
               strong analytical thinking with innovative problem-solving abilities.

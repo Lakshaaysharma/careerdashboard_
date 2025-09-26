@@ -29,6 +29,7 @@ export default function InternshipsPage() {
   const [internships, setInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyInternship, setApplyInternship] = useState<Internship | null>(null);
+  const [viewInternship, setViewInternship] = useState<Internship | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -149,51 +150,25 @@ export default function InternshipsPage() {
             <div className="text-center py-8 text-gray-600">No internships found.</div>
           ) : (
             internships.map((internship, index) => (
-              <Card key={internship._id || index} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg sm:text-xl mb-2">{internship.title}</CardTitle>
-                      <CardDescription className="flex items-center text-base sm:text-lg">
-                        <Building className="w-4 h-4 mr-2" />
-                        {internship.company}
-                      </CardDescription>
-                    </div>
-                    <Badge variant="secondary" className="self-start sm:self-auto">{internship.type || 'Full-time'}</Badge>
+              <Card
+                key={internship._id || index}
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setViewInternship(internship)}
+              >
+                <CardHeader className="px-3 sm:px-4 py-3">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-base sm:text-lg leading-tight">{internship.title}</CardTitle>
+                    <Badge variant="secondary" className="h-6 px-2 text-xs">{internship.type || 'Full-time'}</Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
-                    <div className="flex items-center text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      {internship.location}
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      {/* Duration is not always available, so fallback to N/A */}
-                      <Clock className="w-4 h-4 mr-2" />
-                      {internship.duration || 'N/A'}
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <DollarSign className="w-4 h-4 mr-2" />
-                      {internship.stipend && internship.stipend.min ? `$${internship.stipend.min}` : 'N/A'}
-                    </div>
-                    <div className="text-gray-500 text-sm col-span-2">Posted {internship.createdAt ? new Date(internship.createdAt).toLocaleDateString() : ''}</div>
+                <CardContent className="px-3 sm:px-4 pb-3">
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
+                    <div className="flex items-center"><Building className="w-4 h-4 mr-1.5" />{internship.company}</div>
+                    <div className="flex items-center"><MapPin className="w-4 h-4 mr-1.5" />{internship.location}</div>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {internship.skills && internship.skills.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="outline">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <Button 
-                      className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                      onClick={() => setApplyInternship(internship)}
-                    >
-                      Apply Now
-                    </Button>
-                    <Button variant="outline" className="w-full sm:w-auto">Save</Button>
+                  <div className="mt-2 flex gap-2">
+                    <Button className="h-8 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" onClick={(e) => { e.stopPropagation(); setApplyInternship(internship) }}>Apply</Button>
+                    <Button variant="outline" className="h-8 px-3" onClick={(e) => e.stopPropagation()}>Save</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -269,6 +244,46 @@ export default function InternshipsPage() {
               <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 py-3">{isSubmitting ? 'Submitting...' : 'Submit Application'}</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Internship Details Modal */}
+      <Dialog open={!!viewInternship} onOpenChange={(open) => !open && setViewInternship(null)}>
+        <DialogContent className="max-w-2xl mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+            <DialogTitle className="text-xl sm:text-2xl">{viewInternship?.title}</DialogTitle>
+          </DialogHeader>
+          {viewInternship && (
+            <div className="space-y-4 px-4 sm:px-6 pb-6 text-gray-700">
+              <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                <span className="flex items-center"><Building className="w-4 h-4 mr-2" />{viewInternship.company}</span>
+                <span className="flex items-center"><MapPin className="w-4 h-4 mr-2" />{viewInternship.location}</span>
+                <span className="flex items-center"><Clock className="w-4 h-4 mr-2" />{viewInternship.duration || '—'}</span>
+                <span className="flex items-center"><DollarSign className="w-4 h-4 mr-2" />{viewInternship.stipend?.min ? `$${viewInternship.stipend.min}` : '—'}{viewInternship.stipend?.max ? ` - $${viewInternship.stipend.max}` : ''}</span>
+                <Badge variant="secondary">{viewInternship.type || 'Full-time'}</Badge>
+              </div>
+              {viewInternship.description && (
+                <div>
+                  <h4 className="font-semibold mb-2">Description</h4>
+                  <p className="whitespace-pre-wrap text-gray-800">{viewInternship.description}</p>
+                </div>
+              )}
+              {viewInternship.skills && viewInternship.skills.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {viewInternship.skills.map((s, i) => (
+                      <Badge key={i} variant="outline">{s}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setViewInternship(null)}>Close</Button>
+                <Button onClick={() => { setApplyInternship(viewInternship); setViewInternship(null); }} className="bg-gradient-to-r from-blue-600 to-indigo-600">Apply Now</Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

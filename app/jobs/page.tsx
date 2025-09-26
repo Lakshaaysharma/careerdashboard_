@@ -28,6 +28,7 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyJob, setApplyJob] = useState<Job | null>(null)
+  const [viewJob, setViewJob] = useState<Job | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -147,43 +148,34 @@ export default function JobsPage() {
             <div className="text-center py-8 text-gray-600">No jobs found.</div>
           ) : (
             jobs.map((job, index) => (
-              <Card key={job._id || index} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg sm:text-xl mb-2">{job.title}</CardTitle>
-                      <CardDescription className="flex items-center text-base sm:text-lg">
-                        <Building className="w-4 h-4 mr-2" />
-                        {job.company}
-                      </CardDescription>
-                    </div>
-                    <Badge variant="secondary" className="self-start sm:self-auto">{job.type || 'Full-time'}</Badge>
+              <Card
+                key={job._id || index}
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setViewJob(job)}
+              >
+                <CardHeader className="px-3 sm:px-4 py-3">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-base sm:text-lg leading-tight">{job.title}</CardTitle>
+                    <Badge variant="secondary" className="h-6 px-2 text-xs">{job.type || 'Full-time'}</Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
-                    <div className="flex items-center text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      {job.location}
+                <CardContent className="px-3 sm:px-4 pb-3">
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <Building className="w-4 h-4 mr-1.5" /> {job.company}
                     </div>
-                    <div className="flex items-center text-gray-600">
-                      <DollarSign className="w-4 h-4 mr-2" />
-                      {job.salary && job.salary.min ? `$${job.salary.min}` : 'N/A'}
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-1.5" /> {job.location}
                     </div>
-                    <div className="text-gray-500 text-sm col-span-2">Posted {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : ''}</div>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {job.skills && job.skills.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="outline">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <Button className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" onClick={() => setApplyJob(job)}>
-                      Apply Now
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      className="h-8 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      onClick={(e) => { e.stopPropagation(); setApplyJob(job) }}
+                    >
+                      Apply
                     </Button>
-                    <Button variant="outline" className="w-full sm:w-auto">Save</Button>
+                    <Button variant="outline" className="h-8 px-3" onClick={(e) => e.stopPropagation()}>Save</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -258,6 +250,47 @@ export default function JobsPage() {
               <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 py-3">{isSubmitting ? 'Submitting...' : 'Submit Application'}</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Job Details Modal */}
+      <Dialog open={!!viewJob} onOpenChange={(open) => !open && setViewJob(null)}>
+        <DialogContent className="max-w-2xl mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+            <DialogTitle className="text-xl sm:text-2xl">{viewJob?.title}</DialogTitle>
+          </DialogHeader>
+          {viewJob && (
+            <div className="space-y-4 px-4 sm:px-6 pb-6 text-gray-700">
+              <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                <span className="flex items-center"><Building className="w-4 h-4 mr-2" />{viewJob.company}</span>
+                <span className="flex items-center"><MapPin className="w-4 h-4 mr-2" />{viewJob.location}</span>
+                <span className="flex items-center"><DollarSign className="w-4 h-4 mr-2" />{viewJob.salary?.min ? `$${viewJob.salary.min}` : '—'}{viewJob.salary?.max ? ` - $${viewJob.salary.max}` : ''}</span>
+                <Badge variant="secondary">{viewJob.type || 'Full-time'}</Badge>
+              </div>
+              {viewJob.description && (
+                <div>
+                  <h4 className="font-semibold mb-2">Job Description</h4>
+                  <p className="whitespace-pre-wrap text-gray-800">{viewJob.description}</p>
+                </div>
+              )}
+              {viewJob.skills && viewJob.skills.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {viewJob.skills.map((s, i) => (
+                      <Badge key={i} variant="outline">{s}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setViewJob(null)}>Close</Button>
+                <Button onClick={() => { setApplyJob(viewJob); setViewJob(null); }} className="bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Apply Now
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -1300,6 +1300,17 @@ export default function StudentDashboard() {
             <h2 className="text-6xl font-bold gradient-text mb-4 text-glow">Welcome back, {user.name}!</h2>
             <p className="text-2xl text-gray-300 mb-6">Continue your journey to career excellence</p>
             
+            {/* Quick action: Submit Startup Idea */}
+            {user?.email && (
+              <div className="mb-4">
+                <Link href={`/startup-ideas?name=${encodeURIComponent(user.name || '')}&email=${encodeURIComponent(user.email || '')}&role=student`}>
+                  <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                    Submit Startup Idea
+                  </Button>
+                </Link>
+              </div>
+            )}
+
             {/* Student Details Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="glass-card border border-white/10 p-4 rounded-lg">

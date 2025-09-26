@@ -31,6 +31,25 @@ export default function StartupIdeasPage() {
     additionalInfo: ''
   })
 
+  // Prefill from dashboard deep-link
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const name = params.get('name') || ''
+      const email = params.get('email') || ''
+      if (name || email) {
+        const [firstName, ...rest] = name.split(' ')
+        const lastName = rest.join(' ')
+        setFormData(prev => ({
+          ...prev,
+          firstName: firstName || prev.firstName,
+          lastName: lastName || prev.lastName,
+          email: email || prev.email,
+        }))
+      }
+    } catch {}
+  }, [])
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }

@@ -105,6 +105,16 @@ export default function MentorDashboard() {
               >
                 Edit Profile
               </button>
+            {mentor?.name && (
+              <div className="ml-3">
+                <a
+                  href={`/startup-ideas?name=${encodeURIComponent(mentor.name || '')}&email=${encodeURIComponent(mentor.email || '')}&role=mentor`}
+                  className="inline-flex px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white"
+                >
+                  Submit Startup Idea
+                </a>
+              </div>
+            )}
             </div>
           </div>
 
