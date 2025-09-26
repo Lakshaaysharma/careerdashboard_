@@ -21,7 +21,7 @@ const internshipApplicationSchema = new mongoose.Schema({
     required: true,
     trim: true,
     maxlength: [100, 'Name cannot exceed 100 characters']
-  },
+  }, 
   
   applicantEmail: {
     type: String,

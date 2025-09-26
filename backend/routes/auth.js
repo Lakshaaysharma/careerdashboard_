@@ -4,6 +4,8 @@ const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Mentor = require('../models/Mentor');
+const Job = require('../models/Job');
+const Internship = require('../models/Internship');
 const { protect } = require('../middleware/auth');
 const { validateLogin, validateSignup, validateGoogleAuth } = require('../utils/validation');
 const { verifyGoogleToken, extractGoogleUserData } = require('../utils/googleAuth');
@@ -401,6 +403,53 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
       isAuthenticated: true
     }
   });
+}));
+
+// @desc    Get user statistics
+// @route   GET /api/auth/stats
+// @access  Public
+router.get('/stats', asyncHandler(async (req, res) => {
+  try {
+    // Get total user count
+    const totalUsers = await User.countDocuments({ isActive: true });
+    
+    // Get user count by role
+    const usersByRole = await User.aggregate([
+      { $match: { isActive: true } },
+      { $group: { _id: '$role', count: { $sum: 1 } } }
+    ]);
+    
+    // Convert to object for easier access
+    const roleStats = {};
+    usersByRole.forEach(role => {
+      roleStats[role._id] = role.count;
+    });
+    
+    // Get total job opportunities (jobs + internships)
+    const totalJobs = await Job.countDocuments({ status: 'active' });
+    const totalInternships = await Internship.countDocuments({ status: 'active' });
+    const totalJobOpportunities = totalJobs + totalInternships;
+    
+    res.json({
+      success: true,
+      data: {
+        totalUsers,
+        students: roleStats.student || 0,
+        teachers: roleStats.teacher || 0,
+        employers: roleStats.employer || 0,
+        mentors: roleStats.mentor || 0,
+        totalJobOpportunities,
+        totalJobs,
+        totalInternships
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching user statistics'
+    });
+  }
 }));
 
 // @desc    Create demo users (for development)

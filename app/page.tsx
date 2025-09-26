@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { FloatingParticles } from "@/components/ui/floating-particles"
+import { apiCall } from "@/lib/config"
 import {
   Star,
   Lightbulb,
@@ -63,7 +64,30 @@ export default function HomePage() {
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false)
   const [showMentorDialog, setShowMentorDialog] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [totalUsers, setTotalUsers] = useState(15000) // Default fallback value
+  const [totalJobOpportunities, setTotalJobOpportunities] = useState(250) // Default fallback value
+  const [totalInternships, setTotalInternships] = useState(100) // Default fallback value
+  const [totalMentors, setTotalMentors] = useState(50) // Default fallback value
   
+
+  // Function to fetch user statistics
+  const fetchUserStats = async () => {
+    try {
+      const response = await apiCall('/api/auth/stats');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setTotalUsers(data.data.totalUsers);
+          setTotalJobOpportunities(data.data.totalJobOpportunities);
+          setTotalInternships(data.data.totalInternships);
+          setTotalMentors(data.data.mentors);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch user stats:', error);
+      // Keep the default fallback values
+    }
+  };
 
   useEffect(() => {
     setIsVisible(true)
@@ -81,6 +105,9 @@ export default function HomePage() {
     if (!studentId) {
       setStudentId(generateStudentId())
     }
+
+    // Fetch user statistics
+    fetchUserStats();
 
     return () => clearInterval(interval)
   }, [studentId])
@@ -128,30 +155,30 @@ export default function HomePage() {
 
   const stats = [
     {
-      label: "Students Placed",
-      value: 15000,
+      label: "Total Users",
+      value: totalUsers,
       prefix: "",
       suffix: "+",
       icon: Users,
       color: "from-blue-500 to-cyan-500",
     },
     {
-      label: "Average Salary Increase",
-      value: 67,
-      prefix: "",
-      suffix: "%",
-      icon: TrendingUp,
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      label: "Partner Companies",
-      value: 500,
+      label: "Job Opportunities",
+      value: totalJobOpportunities,
       prefix: "",
       suffix: "+",
       icon: Briefcase,
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      label: "Internships Available",
+      value: totalInternships,
+      prefix: "",
+      suffix: "+",
+      icon: GraduationCap,
       color: "from-purple-500 to-pink-500",
     },
-    { label: "Success Rate", value: 94, prefix: "", suffix: "%", icon: Award, color: "from-orange-500 to-red-500" },
+    { label: "Expert Mentors", value: totalMentors, prefix: "", suffix: "+", icon: Users, color: "from-orange-500 to-red-500" },
   ]
 
   const courses = [

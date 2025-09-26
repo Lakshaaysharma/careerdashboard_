@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Lightbulb, DollarSign, Users, Rocket, CheckCircle } from "lucide-react"
+import { TrendingUp, Lightbulb, Rocket, CheckCircle } from "lucide-react"
 
 export default function StartupIdeasPage() {
   const [submitted, setSubmitted] = useState(false)
@@ -171,30 +171,6 @@ export default function StartupIdeasPage() {
           </p>
         </div>
 
-        {/* Responsive Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">$50M+</div>
-              <p className="text-sm text-gray-600">Total Funding Raised</p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">200+</div>
-              <p className="text-sm text-gray-600">Active Investors</p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <Rocket className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold">150+</div>
-              <p className="text-sm text-gray-600">Ideas Funded</p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Responsive Submission Form */}
         <Card className="shadow-lg">
@@ -350,42 +326,6 @@ export default function StartupIdeasPage() {
           </CardContent>
         </Card>
 
-        {/* Success Stories */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Recent Success Stories</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">EcoTrack</CardTitle>
-                  <Badge className="bg-green-100 text-green-800">Funded</Badge>
-                </div>
-                <CardDescription>Sustainability tracking app for businesses</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 mb-2">
-                  "Received $250K seed funding within 3 weeks of submission!"
-                </p>
-                <p className="text-xs text-gray-500">- Sarah Chen, Founder</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">StudyBuddy AI</CardTitle>
-                  <Badge className="bg-blue-100 text-blue-800">In Development</Badge>
-                </div>
-                <CardDescription>AI-powered personalized learning platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 mb-2">
-                  "Connected with amazing mentors and secured pre-seed funding!"
-                </p>
-                <p className="text-xs text-gray-500">- Mike Rodriguez, Co-founder</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
       </div>
     </div>
   )
