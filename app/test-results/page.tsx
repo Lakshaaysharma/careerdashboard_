@@ -179,18 +179,11 @@ export default function TestResultsPage() {
               Recommended Career Path
             </Badge>
             <CardTitle className="text-3xl sm:text-4xl gradient-text mb-2">{results.recommendedCareer}</CardTitle>
-            <CardDescription className="text-lg sm:text-xl text-gray-300">
-              Your optimal career match based on AI analysis
-            </CardDescription>
           </CardHeader>
           <CardContent className="text-center px-4 sm:px-6">
             <div className="text-2xl sm:text-3xl mb-4 sm:mb-6 text-green-400">{results.careerMatch}% Match</div>
             <Progress value={results.careerMatch} className="h-3 sm:h-4 bg-gray-800 mb-4 sm:mb-6" />
-            <p className="text-sm sm:text-base text-gray-400 mb-2">{getMatchMessage(results.careerMatch)}</p>
-            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
-              Your cognitive profile shows exceptional alignment with {results.recommendedCareer} roles, combining
-              strong analytical thinking with innovative problem-solving abilities.
-            </p>
+            <p className="text-xl sm:text-2xl text-gray-300 mb-2">{getMatchMessage(results.careerMatch)}</p>
           </CardContent>
         </Card>
 

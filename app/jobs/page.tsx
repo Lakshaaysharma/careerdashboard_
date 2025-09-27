@@ -18,18 +18,26 @@ interface Job {
   company: string;
   location: string;
   salary?: { min?: number; max?: number; currency?: string };
-  type?: string;
+  jobType?: string;
   skills?: string[];
   description?: string;
+  experience?: { min?: number; max?: number; unit?: string };
   createdAt?: string;
 }
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyJob, setApplyJob] = useState<Job | null>(null)
   const [viewJob, setViewJob] = useState<Job | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [experienceFilter, setExperienceFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -38,11 +46,85 @@ export default function JobsPage() {
       const data = await response.json();
       if (data.success) {
         setJobs(data.data);
+        setFilteredJobs(data.data);
       }
       setLoading(false);
     };
     fetchJobs();
   }, []);
+
+  // Filter jobs based on search and filters
+  useEffect(() => {
+    let filtered = jobs;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(job =>
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.skills?.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Location filter
+    if (locationFilter !== "all") {
+      filtered = filtered.filter(job =>
+        job.location.toLowerCase().includes(locationFilter.toLowerCase())
+      );
+    }
+
+    // Experience filter
+    if (experienceFilter !== "all") {
+      filtered = filtered.filter(job => {
+        // Check experience object first, then fallback to text search
+        if (job.experience?.min !== undefined) {
+          const minExperience = job.experience.min;
+          const unit = job.experience.unit || "years";
+          
+          // Convert months to years for comparison
+          const experienceInYears = unit === "months" ? minExperience / 12 : minExperience;
+          
+          if (experienceFilter === "entry") {
+            return experienceInYears >= 0 && experienceInYears <= 1;  // 0-1 years
+          } else if (experienceFilter === "junior") {
+            return experienceInYears >= 1 && experienceInYears <= 3;  // 1-3 years
+          }
+        }
+        
+        // Fallback to text search if no experience object
+        const description = job.description?.toLowerCase() || "";
+        const title = job.title?.toLowerCase() || "";
+        
+        if (experienceFilter === "entry") {
+          return description.includes("entry") || 
+                 description.includes("junior") || 
+                 description.includes("0-1 year") ||
+                 title.includes("entry") ||
+                 title.includes("junior");
+        } else if (experienceFilter === "junior") {
+          return description.includes("1-3 year") || 
+                 description.includes("junior") ||
+                 description.includes("2 year") ||
+                 description.includes("3 year");
+        }
+        return true;
+      });
+    }
+
+    // Job type filter
+    if (typeFilter !== "all") {
+      filtered = filtered.filter(job => {
+        const jobType = job.jobType?.toLowerCase() || "";
+        if (typeFilter === "fulltime") return jobType.includes("full") || jobType.includes("full-time");
+        if (typeFilter === "parttime") return jobType.includes("part") || jobType.includes("part-time");
+        if (typeFilter === "contract") return jobType.includes("contract");
+        return true;
+      });
+    }
+
+    setFilteredJobs(filtered);
+  }, [jobs, searchTerm, locationFilter, experienceFilter, typeFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -102,21 +184,26 @@ export default function JobsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input placeholder="Search jobs..." className="pl-10" />
+              <Input 
+                placeholder="Search jobs..." 
+                className="pl-10" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Select>
+            <Select value={locationFilter} onValueChange={setLocationFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Location" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Locations</SelectItem>
                 <SelectItem value="remote">Remote</SelectItem>
-                <SelectItem value="ca">California</SelectItem>
-                <SelectItem value="ny">New York</SelectItem>
-                <SelectItem value="tx">Texas</SelectItem>
+                <SelectItem value="california">California</SelectItem>
+                <SelectItem value="new york">New York</SelectItem>
+                <SelectItem value="texas">Texas</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={experienceFilter} onValueChange={setExperienceFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Experience Level" />
               </SelectTrigger>
@@ -126,7 +213,7 @@ export default function JobsPage() {
                 <SelectItem value="junior">Junior (1-3 years)</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Job Type" />
               </SelectTrigger>
@@ -144,10 +231,14 @@ export default function JobsPage() {
         <div className="grid gap-4 sm:gap-6">
           {loading ? (
             <div className="text-center py-8 text-gray-600">Loading jobs...</div>
-          ) : jobs.length === 0 ? (
-            <div className="text-center py-8 text-gray-600">No jobs found.</div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="text-center py-8 text-gray-600">
+              {searchTerm || locationFilter !== "all" || experienceFilter !== "all" || typeFilter !== "all" 
+                ? "No jobs match your search criteria." 
+                : "No jobs found."}
+            </div>
           ) : (
-            jobs.map((job, index) => (
+            filteredJobs.map((job, index) => (
               <Card
                 key={job._id || index}
                 className="hover:shadow-lg transition-shadow cursor-pointer"
@@ -156,7 +247,7 @@ export default function JobsPage() {
                 <CardHeader className="px-3 sm:px-4 py-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-base sm:text-lg leading-tight">{job.title}</CardTitle>
-                    <Badge variant="secondary" className="h-6 px-2 text-xs">{job.type || 'Full-time'}</Badge>
+                    <Badge variant="secondary" className="h-6 px-2 text-xs">{job.jobType || 'Full-time'}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="px-3 sm:px-4 pb-3">
@@ -168,14 +259,13 @@ export default function JobsPage() {
                       <MapPin className="w-4 h-4 mr-1.5" /> {job.location}
                     </div>
                   </div>
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2">
                     <Button
                       className="h-8 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                       onClick={(e) => { e.stopPropagation(); setApplyJob(job) }}
                     >
                       Apply
                     </Button>
-                    <Button variant="outline" className="h-8 px-3" onClick={(e) => e.stopPropagation()}>Save</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -265,7 +355,7 @@ export default function JobsPage() {
                 <span className="flex items-center"><Building className="w-4 h-4 mr-2" />{viewJob.company}</span>
                 <span className="flex items-center"><MapPin className="w-4 h-4 mr-2" />{viewJob.location}</span>
                 <span className="flex items-center"><DollarSign className="w-4 h-4 mr-2" />{viewJob.salary?.min ? `$${viewJob.salary.min}` : '—'}{viewJob.salary?.max ? ` - $${viewJob.salary.max}` : ''}</span>
-                <Badge variant="secondary">{viewJob.type || 'Full-time'}</Badge>
+                <Badge variant="secondary">{viewJob.jobType || 'Full-time'}</Badge>
               </div>
               {viewJob.description && (
                 <div>

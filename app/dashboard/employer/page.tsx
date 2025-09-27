@@ -31,9 +31,11 @@ import {
   Send,
   FileText,
   Award,
+  Upload,
+  Download,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { apiCall } from "@/lib/config"
+import { apiCall, config } from "@/lib/config"
 
 export default function EmployerDashboard() {
   // All hooks at the top
@@ -87,6 +89,17 @@ export default function EmployerDashboard() {
   ]
   // Add state for internship form dialog
   const [showInternshipForm, setShowInternshipForm] = useState(false);
+  // Add state for CSV upload dialogs
+  const [showCSVJobUpload, setShowCSVJobUpload] = useState(false);
+  const [showCSVInternshipUpload, setShowCSVInternshipUpload] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvUploading, setCsvUploading] = useState(false);
+  
+  // State for applicants modal
+  const [showApplicantsModal, setShowApplicantsModal] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<any>(null);
+  const [applicants, setApplicants] = useState<any[]>([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserAndEmployerData = async () => {
@@ -302,9 +315,179 @@ export default function EmployerDashboard() {
     }
   }
 
-  const deleteInternship = (id: number) => {
-    setInternships(internships.filter(internship => internship.id !== id))
+  const deleteInternship = async (id: string) => {
+    setLoading(true)
+    setError("")
+    
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        setError("Not authenticated. Please log in.")
+        return
+      }
+
+      const response = await apiCall(`/api/employers/internships/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await response.json()
+      
+      if (response.ok && data.success) {
+        setInternships(internships.filter(internship => internship.id !== id))
+        
+        // Refresh employer data
+        const employerResponse = await apiCall("/api/employers/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        const employerData = await employerResponse.json()
+        
+        if (employerResponse.ok && employerData.success) {
+          setEmployerData(employerData.data)
+        }
+      } else {
+        setError(data.message || "Failed to delete internship.")
+      }
+    } catch (err) {
+      setError("Network error. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
+
+  // CSV Upload Handlers
+  const handleCSVUpload = async (type: 'jobs' | 'internships') => {
+    if (!csvFile) return;
+    
+    setCsvUploading(true);
+    setError("");
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Not authenticated. Please log in.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('csvFile', csvFile);
+      formData.append('type', type);
+
+      const response = await apiCall(`/api/employers/bulk-upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Don't set Content-Type for FormData, let the browser set it with boundary
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Refresh the data
+        const employerResponse = await apiCall("/api/employers/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const employerData = await employerResponse.json();
+        
+        if (employerResponse.ok && employerData.success) {
+          setEmployerData(employerData.data);
+          setJobs(employerData.data.recentJobs || []);
+          setInternships(employerData.data.recentInternships || []);
+        }
+        
+        setCsvFile(null);
+        setShowCSVJobUpload(false);
+        setShowCSVInternshipUpload(false);
+        alert(`Successfully uploaded ${data.data.count} ${type}!`);
+      } else {
+        setError(data.message || `Failed to upload ${type}.`);
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setCsvUploading(false);
+    }
+  };
+
+  // Template Download Functions
+  const downloadCSVTemplate = (type: 'jobs' | 'internships') => {
+    let csvContent = '';
+    let filename = '';
+    
+    if (type === 'jobs') {
+      csvContent = 'title,description,location,salary,experience,skills,qualification,email\n' +
+        'Software Engineer,"Develop and maintain web applications",New York NY,"$80000-$120000",2,"React,Node.js,SQL",B.Tech,jobs@company.com\n' +
+        'Data Scientist,"Analyze data and build ML models",San Francisco CA,"$90000-$130000",3,"Python,R,SQL,Machine Learning",M.Sc,hr@company.com';
+      filename = 'job_template.csv';
+    } else {
+      csvContent = 'title,description,location,stipend,experience,skills,qualification,email\n' +
+        'Software Development Intern,"Learn web development technologies",Remote,"$3000/month",0,"JavaScript,HTML,CSS",B.Tech,interns@company.com\n' +
+        'Data Analysis Intern,"Work with real datasets and analytics",Boston MA,"$2500/month",0,"Python,Excel,Statistics",B.Sc,hr@company.com';
+      filename = 'internship_template.csv';
+    }
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  // Function to fetch applicants for a specific opportunity
+  const fetchApplicants = async (type: 'job' | 'internship', id: string) => {
+    setApplicantsLoading(true);
+    setError("");
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Not authenticated. Please log in.");
+        return;
+      }
+
+      const response = await apiCall(`/api/employers/applicants/${type}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setSelectedOpportunity(data.data.opportunity);
+        setApplicants(data.data.applicants);
+        setShowApplicantsModal(true);
+      } else {
+        setError(data.message || "Failed to fetch applicants.");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setApplicantsLoading(false);
+    }
+  };
+
+  // Function to handle job card click
+  const handleJobClick = (job: any) => {
+    fetchApplicants('job', job.id);
+  };
+
+  // Function to handle internship card click
+  const handleInternshipClick = (internship: any) => {
+    fetchApplicants('internship', internship.id);
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>
@@ -363,53 +546,110 @@ export default function EmployerDashboard() {
                   </Avatar>
                 </div>
               </DialogTrigger>
-              <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl gradient-text">Profile Details</DialogTitle>
-                  <DialogDescription className="text-gray-300">Your account information</DialogDescription>
+              <DialogContent className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-gray-700 w-[95vw] max-w-lg">
+                <DialogHeader className="text-center pb-4">
+                  <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Profile Details
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-300 text-lg">
+                    Your account information
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center gap-4 py-4">
-                  <Avatar className="w-20 h-20 border-2 border-blue-500/30">
-                    <AvatarImage src="/placeholder.svg?height=80&width=80" />
-                    <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-3xl">
-                      {dashboardData.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'EM'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-center w-full">
-                    <p className="text-xl font-bold text-white mb-2">{user.name}</p>
-                    <div className="flex flex-col items-start gap-2 mx-auto w-fit text-left">
-                      {user.email && (
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" stroke="none"/><path d="M22 6l-10 7L2 6" /></svg>
-                          <span><span className="font-semibold">Email ID:</span> {user.email}</span>
-                        </div>
-                      )}
-                      {user.profile?.location && (
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
-                          <span>{user.profile.location}</span>
-                        </div>
-                      )}
-                      {user.profile?.phone && (
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 16.92V19a2 2 0 0 1-2.18 2A19.72 19.72 0 0 1 3 5.18 2 2 0 0 1 5 3h2.09a2 2 0 0 1 2 1.72c.13.81.36 1.6.7 2.34a2 2 0 0 1-.45 2.11l-.27.27a16 16 0 0 0 6.29 6.29l.27-.27a2 2 0 0 1 2.11-.45c.74.34 1.53.57 2.34.7A2 2 0 0 1 21 16.91z"/></svg>
-                          <span>{user.profile.phone}</span>
-                        </div>
-                      )}
-                      {user.role && (
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21h13a2 2 0 0 0 2-2v-2a7 7 0 0 0-14 0v2a2 2 0 0 0 2 2z"/></svg>
-                          <span>{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
-                        </div>
-                      )}
-                      {user.profile?.bio && (
-                        <div className="flex items-start gap-2 text-gray-400 mt-2">
-                          <svg className="w-4 h-4 mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>
-                          <span>{user.profile.bio}</span>
-                        </div>
-                      )}
+                
+                <div className="space-y-6">
+                  {/* Profile Header */}
+                  <div className="text-center">
+                    <div className="relative inline-block">
+                      <Avatar className="w-24 h-24 border-4 border-gradient-to-r from-blue-500 to-purple-500 shadow-2xl">
+                        <AvatarImage src="/placeholder.svg?height=96&width=96" />
+                        <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-4xl font-bold">
+                          {dashboardData.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'EM'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-white" />
+                      </div>
                     </div>
+                    <h2 className="text-2xl font-bold text-white mt-4 mb-1">{user.name}</h2>
+                    <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-1 text-sm font-semibold">
+                      {user.role?.charAt(0).toUpperCase() + user.role?.slice(1) || 'Employer'}
+                    </Badge>
                   </div>
+
+                  {/* Profile Information Cards */}
+                  <div className="space-y-3">
+                    {user.email && (
+                      <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M4 4h16v16H4z" stroke="none"/>
+                                <path d="M22 6l-10 7L2 6" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-400 font-medium">Email Address</p>
+                              <p className="text-white font-semibold">{user.email}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {user.profile?.location && (
+                      <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                              <MapPin className="w-5 h-5 text-green-400" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-400 font-medium">Location</p>
+                              <p className="text-white font-semibold">{user.profile.location}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {user.profile?.phone && (
+                      <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                              <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M22 16.92V19a2 2 0 0 1-2.18 2A19.72 19.72 0 0 1 3 5.18 2 2 0 0 1 5 3h2.09a2 2 0 0 1 2 1.72c.13.81.36 1.6.7 2.34a2 2 0 0 1-.45 2.11l-.27.27a16 16 0 0 0 6.29 6.29l.27-.27a2 2 0 0 1 2.11-.45c.74.34 1.53.57 2.34.7A2 2 0 0 1 21 16.91z"/>
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-400 font-medium">Phone Number</p>
+                              <p className="text-white font-semibold">{user.profile.phone}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {user.profile?.bio && (
+                      <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center mt-1">
+                              <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/>
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-400 font-medium mb-2">Bio</p>
+                              <p className="text-white font-medium leading-relaxed">{user.profile.bio}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+
                 </div>
               </DialogContent>
             </Dialog>
@@ -502,17 +742,28 @@ export default function EmployerDashboard() {
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-4 sm:space-y-6">
-            {/* Post Job Button */}
+            {/* Post Job Buttons */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
               <h3 className="text-lg sm:text-xl font-semibold text-white text-center sm:text-left">Your Job Postings</h3>
-              <Button 
-                onClick={() => setShowJobForm(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white w-full sm:w-auto"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Post New Job</span>
-                <span className="sm:hidden">Post Job</span>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <Button 
+                  onClick={() => setShowCSVJobUpload(true)}
+                  variant="outline"
+                  className="border-green-500/50 text-green-400 hover:bg-green-500/10 w-full sm:w-auto"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Bulk Upload Jobs</span>
+                  <span className="sm:hidden">Bulk Upload</span>
+                </Button>
+                <Button 
+                  onClick={() => setShowJobForm(true)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Post New Job</span>
+                  <span className="sm:hidden">Post Job</span>
+                </Button>
+              </div>
             </div>
 
 
@@ -535,7 +786,7 @@ export default function EmployerDashboard() {
                 ) : (
                   <div className="space-y-4">
                     {jobs.map((job) => (
-                      <Card key={job.id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800/70 transition-colors">
+                      <Card key={job.id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800/70 transition-colors cursor-pointer" onClick={() => handleJobClick(job)}>
                         <CardContent className="p-4 sm:p-6">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                             <div className="flex-1 min-w-0">
@@ -560,16 +811,9 @@ export default function EmployerDashboard() {
                                   <Users className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                                   <span>{job.applications} apps</span>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                  <span>{job.views} views</span>
-                                </div>
                               </div>
                             </div>
-                            <div className="flex items-center justify-end gap-2">
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Edit className="w-4 h-4" />
-                              </Button>
+                            <div className="flex items-center justify-end">
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
@@ -591,17 +835,28 @@ export default function EmployerDashboard() {
 
           {/* Internships Tab */}
           <TabsContent value="internships" className="space-y-4 sm:space-y-6">
-            {/* Post Internship Button */}
+            {/* Post Internship Buttons */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
               <h3 className="text-lg sm:text-xl font-semibold text-white text-center sm:text-left">Your Internship Postings</h3>
-              <Button 
-                onClick={() => setShowInternshipForm(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full sm:w-auto"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Post New Internship</span>
-                <span className="sm:hidden">Post Internship</span>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <Button 
+                  onClick={() => setShowCSVInternshipUpload(true)}
+                  variant="outline"
+                  className="border-green-500/50 text-green-400 hover:bg-green-500/10 w-full sm:w-auto"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Bulk Upload Internships</span>
+                  <span className="sm:hidden">Bulk Upload</span>
+                </Button>
+                <Button 
+                  onClick={() => setShowInternshipForm(true)}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Post New Internship</span>
+                  <span className="sm:hidden">Post Internship</span>
+                </Button>
+              </div>
             </div>
 
             {/* Internship Posting Dialog */}
@@ -748,7 +1003,7 @@ export default function EmployerDashboard() {
                 ) : (
                   <div className="space-y-4">
                     {internships.map((internship) => (
-                      <Card key={internship.id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800/70 transition-colors">
+                      <Card key={internship.id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800/70 transition-colors cursor-pointer" onClick={() => handleInternshipClick(internship)}>
                         <CardContent className="p-4 sm:p-6">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                             <div className="flex-1 min-w-0">
@@ -773,16 +1028,9 @@ export default function EmployerDashboard() {
                                   <Users className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                                   <span>{internship.applications} apps</span>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                  <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                  <span>{internship.views} views</span>
-                                </div>
                               </div>
                             </div>
-                            <div className="flex items-center justify-end gap-2">
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Edit className="w-4 h-4" />
-                              </Button>
+                            <div className="flex items-center justify-end">
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
@@ -927,6 +1175,219 @@ export default function EmployerDashboard() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Job Upload Dialog */}
+      <Dialog open={showCSVJobUpload} onOpenChange={setShowCSVJobUpload}>
+        <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl gradient-text">Bulk Upload Jobs</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Upload multiple jobs at once using a CSV file. Download the template to see the required format.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => downloadCSVTemplate('jobs')}
+                variant="outline"
+                className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Template
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="csv-file" className="text-gray-300">Select CSV File</Label>
+              <Input 
+                id="csv-file"
+                type="file"
+                accept=".csv"
+                onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                className="bg-gray-800/50 border-gray-600 text-white"
+              />
+            </div>
+            {csvFile && (
+              <div className="text-sm text-gray-400">
+                Selected: {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
+              </div>
+            )}
+            <div className="flex justify-end gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCSVJobUpload(false)}
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => handleCSVUpload('jobs')}
+                disabled={!csvFile || csvUploading}
+                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+              >
+                {csvUploading ? "Uploading..." : "Upload Jobs"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Internship Upload Dialog */}
+      <Dialog open={showCSVInternshipUpload} onOpenChange={setShowCSVInternshipUpload}>
+        <DialogContent className="bg-gray-900 border-gray-700 w-[95vw] max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl gradient-text">Bulk Upload Internships</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Upload multiple internships at once using a CSV file. Download the template to see the required format.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => downloadCSVTemplate('internships')}
+                variant="outline"
+                className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Template
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="csv-file-internship" className="text-gray-300">Select CSV File</Label>
+              <Input 
+                id="csv-file-internship"
+                type="file"
+                accept=".csv"
+                onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                className="bg-gray-800/50 border-gray-600 text-white"
+              />
+            </div>
+            {csvFile && (
+              <div className="text-sm text-gray-400">
+                Selected: {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
+              </div>
+            )}
+            <div className="flex justify-end gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCSVInternshipUpload(false)}
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => handleCSVUpload('internships')}
+                disabled={!csvFile || csvUploading}
+                className="bg-gradient-to-r from-green-500 to-purple-500 hover:from-green-600 hover:to-purple-600"
+              >
+                {csvUploading ? "Uploading..." : "Upload Internships"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Applicants Modal */}
+      <Dialog open={showApplicantsModal} onOpenChange={setShowApplicantsModal}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Applicants for {selectedOpportunity?.title}
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View and manage applicants for this opportunity
+            </DialogDescription>
+          </DialogHeader>
+          
+          {applicantsLoading ? (
+            <div className="text-center py-8 text-gray-400">Loading applicants...</div>
+          ) : applicants.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No applicants yet</p>
+              <p className="text-sm">Applicants will appear here when they apply for this opportunity</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {applicants.map((applicant, index) => (
+                <Card key={applicant._id || index} className="bg-gray-800/50 border-gray-700">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Avatar className="w-10 h-10">
+                            <AvatarFallback className="bg-blue-600 text-white">
+                              {(applicant.applicant?.name || applicant.applicantName || 'A').charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h4 className="font-semibold text-white">
+                              {applicant.applicant?.name || applicant.applicantName || 'Unknown'}
+                            </h4>
+                            <p className="text-sm text-gray-400">
+                              {applicant.applicant?.email || applicant.applicantEmail || 'No email'}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {applicant.applicant?.phone || applicant.applicantPhone ? (
+                            <Badge variant="outline" className="text-xs">
+                              📞 {applicant.applicant?.phone || applicant.applicantPhone}
+                            </Badge>
+                          ) : null}
+                          
+                          {applicant.experience !== undefined ? (
+                            <Badge variant="outline" className="text-xs">
+                              💼 {typeof applicant.experience === 'object' ? applicant.experience.years || 0 : applicant.experience} yrs exp
+                            </Badge>
+                          ) : null}
+                          
+                          {applicant.expectedSalary?.amount || applicant.expectedStipend?.amount ? (
+                            <Badge variant="outline" className="text-xs">
+                              💰 ${(applicant.expectedSalary?.amount || applicant.expectedStipend?.amount).toLocaleString()}
+                            </Badge>
+                          ) : null}
+                          
+                          {applicant.skills && applicant.skills.length > 0 ? (
+                            <Badge variant="outline" className="text-xs">
+                              🛠️ {applicant.skills.slice(0, 2).join(', ')}
+                              {applicant.skills.length > 2 && ` +${applicant.skills.length - 2} more`}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        
+                        {applicant.coverLetter && (
+                          <p className="text-sm text-gray-300 line-clamp-2">
+                            {applicant.coverLetter}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        {applicant.resume?.url && (
+                          <a 
+                            href={`${config.apiUrl}${applicant.resume.url}`} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="px-3 py-1 rounded bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
+                          >
+                            📄 View Resume
+                          </a>
+                        )}
+                        
+                        <div className="text-xs text-gray-400">
+                          Applied: {new Date(applicant.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

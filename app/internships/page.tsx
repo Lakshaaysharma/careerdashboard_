@@ -22,15 +22,23 @@ interface Internship {
   type?: string;
   skills?: string[];
   description?: string;
+  experience?: { min?: number; max?: number; unit?: string };
   createdAt?: string;
 }
 
 export default function InternshipsPage() {
   const [internships, setInternships] = useState<Internship[]>([]);
+  const [filteredInternships, setFilteredInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyInternship, setApplyInternship] = useState<Internship | null>(null);
   const [viewInternship, setViewInternship] = useState<Internship | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [experienceFilter, setExperienceFilter] = useState("all");
+  const [fieldFilter, setFieldFilter] = useState("all");
 
   useEffect(() => {
     const fetchInternships = async () => {
@@ -39,11 +47,93 @@ export default function InternshipsPage() {
       const data = await response.json();
       if (data.success && data.data) {
         setInternships(data.data);
+        setFilteredInternships(data.data);
       }
       setLoading(false);
     };
     fetchInternships();
   }, []);
+
+  // Filter internships based on search and filters
+  useEffect(() => {
+    let filtered = internships;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(internship =>
+        internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        internship.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        internship.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        internship.skills?.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Location filter
+    if (locationFilter !== "all") {
+      filtered = filtered.filter(internship =>
+        internship.location.toLowerCase().includes(locationFilter.toLowerCase())
+      );
+    }
+
+    // Experience filter
+    if (experienceFilter !== "all") {
+      filtered = filtered.filter(internship => {
+        // Check experience object first, then fallback to text search
+        if (internship.experience?.min !== undefined) {
+          const minExperience = internship.experience.min;
+          const unit = internship.experience.unit || "years";
+          
+          // Convert months to years for comparison
+          const experienceInYears = unit === "months" ? minExperience / 12 : minExperience;
+          
+          if (experienceFilter === "0") {
+            return experienceInYears === 0;
+          } else if (experienceFilter === "1-2") {
+            return experienceInYears >= 1 && experienceInYears <= 2;
+          } else if (experienceFilter === "2+") {
+            return experienceInYears >= 2;
+          }
+        }
+        
+        // Fallback to text search if no experience object
+        const description = internship.description?.toLowerCase() || "";
+        const title = internship.title?.toLowerCase() || "";
+        
+        if (experienceFilter === "0") {
+          // Entry level - look for keywords like "entry", "beginner", "no experience", "fresher"
+          return description.includes("entry") || 
+                 description.includes("beginner") || 
+                 description.includes("no experience") || 
+                 description.includes("fresher") ||
+                 title.includes("entry") ||
+                 title.includes("junior");
+        } else if (experienceFilter === "1-2") {
+          // 1-2 years experience
+          return description.includes("1 year") || 
+                 description.includes("2 year") ||
+                 description.includes("1-2 year") ||
+                 description.includes("junior");
+        } else if (experienceFilter === "2+") {
+          // 2+ years experience
+          return description.includes("2+ year") || 
+                 description.includes("3 year") ||
+                 description.includes("senior") ||
+                 description.includes("experienced");
+        }
+        return true;
+      });
+    }
+
+    // Field filter
+    if (fieldFilter !== "all") {
+      filtered = filtered.filter(internship =>
+        internship.title.toLowerCase().includes(fieldFilter.toLowerCase()) ||
+        internship.skills?.some(skill => skill.toLowerCase().includes(fieldFilter.toLowerCase()))
+      );
+    }
+
+    setFilteredInternships(filtered);
+  }, [internships, searchTerm, locationFilter, experienceFilter, fieldFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -103,40 +193,46 @@ export default function InternshipsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input placeholder="Search internships..." className="pl-10" />
+              <Input 
+                placeholder="Search internships..." 
+                className="pl-10" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Select>
+            <Select value={locationFilter} onValueChange={setLocationFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Location" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="ca">California</SelectItem>
-                <SelectItem value="wa">Washington</SelectItem>
-                <SelectItem value="ny">New York</SelectItem>
+                <SelectItem value="remote">Remote</SelectItem>
+                <SelectItem value="new york">New York</SelectItem>
+                <SelectItem value="california">California</SelectItem>
+                <SelectItem value="boston">Boston</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={experienceFilter} onValueChange={setExperienceFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Duration" />
+                <SelectValue placeholder="Experience Required" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Durations</SelectItem>
-                <SelectItem value="8-12">8-12 weeks</SelectItem>
-                <SelectItem value="12-16">12-16 weeks</SelectItem>
-                <SelectItem value="16+">16+ weeks</SelectItem>
+                <SelectItem value="all">All Experience Levels</SelectItem>
+                <SelectItem value="0">Entry Level (0 years)</SelectItem>
+                <SelectItem value="1-2">1-2 years</SelectItem>
+                <SelectItem value="2+">2+ years</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select value={fieldFilter} onValueChange={setFieldFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Field" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Fields</SelectItem>
-                <SelectItem value="engineering">Engineering</SelectItem>
+                <SelectItem value="software">Software Development</SelectItem>
+                <SelectItem value="data">Data Analysis</SelectItem>
                 <SelectItem value="design">Design</SelectItem>
                 <SelectItem value="marketing">Marketing</SelectItem>
-                <SelectItem value="data">Data Science</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -146,10 +242,14 @@ export default function InternshipsPage() {
         <div className="grid gap-4 sm:gap-6">
           {loading ? (
             <div className="text-center py-8 text-gray-600">Loading internships...</div>
-          ) : internships.length === 0 ? (
-            <div className="text-center py-8 text-gray-600">No internships found.</div>
+          ) : filteredInternships.length === 0 ? (
+            <div className="text-center py-8 text-gray-600">
+              {searchTerm || locationFilter !== "all" || experienceFilter !== "all" || fieldFilter !== "all" 
+                ? "No internships match your search criteria." 
+                : "No internships found."}
+            </div>
           ) : (
-            internships.map((internship, index) => (
+            filteredInternships.map((internship, index) => (
               <Card
                 key={internship._id || index}
                 className="hover:shadow-lg transition-shadow cursor-pointer"
@@ -166,9 +266,8 @@ export default function InternshipsPage() {
                     <div className="flex items-center"><Building className="w-4 h-4 mr-1.5" />{internship.company}</div>
                     <div className="flex items-center"><MapPin className="w-4 h-4 mr-1.5" />{internship.location}</div>
                   </div>
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2">
                     <Button className="h-8 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" onClick={(e) => { e.stopPropagation(); setApplyInternship(internship) }}>Apply</Button>
-                    <Button variant="outline" className="h-8 px-3" onClick={(e) => e.stopPropagation()}>Save</Button>
                   </div>
                 </CardContent>
               </Card>
