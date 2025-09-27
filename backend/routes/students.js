@@ -81,44 +81,109 @@ router.get('/profile', protect, asyncHandler(async (req, res) => {
     });
   }
 
-  const student = await Student.findOne({ userId: req.user._id })
-    .populate('assignmentHistory.assignmentId')
-    .populate('courseEnrollments.courseId');
+  try {
+    console.log('Fetching profile for user:', req.user._id);
+    
+    // First try to find existing student
+    let student = await Student.findOne({ userId: req.user._id });
+    console.log('Existing student found:', student ? 'Yes' : 'No');
+    
+    if (!student) {
+      // If no student exists, create one with basic info
+      console.log('Creating new student record...');
+      const User = require('../models/User');
+      const user = await User.findById(req.user._id);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      
+      if (user.role !== 'student') {
+        return res.status(403).json({
+          success: false,
+          message: 'User is not a student'
+        });
+      }
+      
+      student = new Student({
+        userId: req.user._id,
+        name: user.name || '',
+        email: user.email || ''
+      });
+      
+      await student.save();
+      console.log('New student created successfully');
+    }
 
-  if (!student) {
-    return res.status(404).json({
+    // Return profile data
+    const profileData = {
+      name: student.name || '',
+      email: student.email || '',
+      phone: student.phone || '',
+      course: student.course || '',
+      semester: student.semester || '',
+      university: student.university || '',
+      location: student.location || '',
+      bio: student.bio || '',
+      skills: student.skills || '',
+      interests: student.interests || '',
+      linkedin: student.linkedin || '',
+      github: student.github || '',
+      portfolio: student.portfolio || '',
+      level: student.level || 1,
+      totalPoints: student.totalPoints || 0,
+      nextLevelPoints: student.nextLevelPoints || 100,
+      completedAssignments: student.completedAssignments || 0,
+      totalAssignments: student.totalAssignments || 0,
+      currentStreak: student.currentStreak || 0,
+      longestStreak: student.longestStreak || 0,
+      weeklyGoal: student.weeklyGoal || 5,
+      completedThisWeek: student.completedThisWeek || 0,
+      globalRank: student.globalRank || 0,
+      classRank: student.classRank || 0,
+      achievements: student.achievements || [],
+      assignmentHistory: student.assignmentHistory || [],
+      courseEnrollments: student.courseEnrollments || [],
+      lastActivityDate: student.lastActivityDate || new Date(),
+      // Hierarchy information
+      instituteName: student.instituteName || '',
+      className: student.className || '',
+      section: student.section || '',
+      batchYear: student.batchYear || ''
+    };
+
+    // Add calculated fields safely
+    try {
+      profileData.progressPercentage = student.getProgressPercentage ? student.getProgressPercentage() : 0;
+      profileData.levelProgress = student.getLevelProgress ? student.getLevelProgress() : 0;
+    } catch (calcError) {
+      console.log('Calculation error (non-critical):', calcError.message);
+      profileData.progressPercentage = 0;
+      profileData.levelProgress = 0;
+    }
+
+    console.log('Returning profile data for user:', req.user._id);
+    res.json({
+      success: true,
+      data: {
+        student: profileData
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching student profile:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      userId: req.user._id
+    });
+    res.status(500).json({
       success: false,
-      message: 'Student profile not found'
+      message: `Internal server error while fetching profile: ${error.message}`
     });
   }
-
-  res.json({
-    success: true,
-    data: {
-      student: {
-        name: student.name,
-        email: student.email,
-        level: student.level,
-        totalPoints: student.totalPoints,
-        nextLevelPoints: student.nextLevelPoints,
-        completedAssignments: student.completedAssignments,
-        totalAssignments: student.totalAssignments,
-        currentStreak: student.currentStreak,
-        longestStreak: student.longestStreak,
-        weeklyGoal: student.weeklyGoal,
-        completedThisWeek: student.completedThisWeek,
-        globalRank: student.globalRank,
-        classRank: student.classRank,
-        progressPercentage: student.getProgressPercentage(),
-        levelProgress: student.getLevelProgress(),
-        achievements: student.achievements,
-        assignmentHistory: student.assignmentHistory,
-        courseEnrollments: student.courseEnrollments,
-        lastActivityDate: student.lastActivityDate,
-
-      }
-    }
-  });
 }));
 
 // @desc    Complete an assignment and earn points
@@ -719,13 +784,28 @@ router.get('/assignments/history', protect, asyncHandler(async (req, res) => {
       });
     }
 
-    const { name, email, hierarchyData } = req.body;
+    const { 
+      name, 
+      email, 
+      phone,
+      course,
+      semester,
+      university,
+      location,
+      bio,
+      skills,
+      interests,
+      linkedin,
+      github,
+      portfolio,
+      hierarchyData 
+    } = req.body;
 
     try {
       // Find or create student record
       let student = await Student.findOrCreateStudent(req.user._id);
 
-      // Update name and email if provided
+      // Update basic information if provided
       if (name && name !== student.name) {
         student.name = name;
       }
@@ -733,6 +813,19 @@ router.get('/assignments/history', protect, asyncHandler(async (req, res) => {
       if (email && email !== student.email) {
         student.email = email;
       }
+
+      // Update profile fields if provided
+      if (phone !== undefined) student.phone = phone;
+      if (course !== undefined) student.course = course;
+      if (semester !== undefined) student.semester = semester;
+      if (university !== undefined) student.university = university;
+      if (location !== undefined) student.location = location;
+      if (bio !== undefined) student.bio = bio;
+      if (skills !== undefined) student.skills = skills;
+      if (interests !== undefined) student.interests = interests;
+      if (linkedin !== undefined) student.linkedin = linkedin;
+      if (github !== undefined) student.github = github;
+      if (portfolio !== undefined) student.portfolio = portfolio;
 
       // Update hierarchy information if provided
       if (hierarchyData) {
@@ -752,6 +845,17 @@ router.get('/assignments/history', protect, asyncHandler(async (req, res) => {
             id: student._id,
             name: student.name,
             email: student.email,
+            phone: student.phone,
+            course: student.course,
+            semester: student.semester,
+            university: student.university,
+            location: student.location,
+            bio: student.bio,
+            skills: student.skills,
+            interests: student.interests,
+            linkedin: student.linkedin,
+            github: student.github,
+            portfolio: student.portfolio,
             instituteName: student.instituteName,
             className: student.className,
             section: student.section,

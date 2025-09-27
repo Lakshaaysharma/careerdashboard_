@@ -96,6 +96,52 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  
+  // Additional profile fields
+  phone: {
+    type: String,
+    default: ""
+  },
+  course: {
+    type: String,
+    default: ""
+  },
+  semester: {
+    type: String,
+    default: ""
+  },
+  university: {
+    type: String,
+    default: ""
+  },
+  location: {
+    type: String,
+    default: ""
+  },
+  bio: {
+    type: String,
+    default: ""
+  },
+  skills: {
+    type: String,
+    default: ""
+  },
+  interests: {
+    type: String,
+    default: ""
+  },
+  linkedin: {
+    type: String,
+    default: ""
+  },
+  github: {
+    type: String,
+    default: ""
+  },
+  portfolio: {
+    type: String,
+    default: ""
+  },
   // Add assignments field for students to access assignments
   assignments: [{
     title: String,

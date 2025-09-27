@@ -52,6 +52,19 @@ import {
   BadgeIcon as IdCard,
   Users,
   GraduationCap,
+  MapPin,
+  ExternalLink,
+  Code,
+  Briefcase,
+  Heart,
+  User,
+  Mail,
+  Phone as PhoneIcon,
+  Building2,
+  Globe,
+  Linkedin,
+  Github,
+  FileText,
 } from "lucide-react"
 
 export default function StudentDashboard() {
@@ -82,9 +95,96 @@ export default function StudentDashboard() {
   const [showProfileDialog, setShowProfileDialog] = useState(false)
   // Add state for edit mode and form
   const [editProfile, setEditProfile] = useState(false)
-  const [editForm, setEditForm] = useState({ name: user?.name || '', email: user?.email || '' })
+  const [editForm, setEditForm] = useState({ 
+    name: user?.name || '', 
+    email: user?.email || '',
+    phone: user?.phone || '',
+    course: user?.course || '',
+    semester: user?.semester || '',
+    university: user?.university || '',
+    location: user?.location || '',
+    bio: user?.bio || '',
+    skills: user?.skills || '',
+    interests: user?.interests || '',
+    linkedin: user?.linkedin || '',
+    github: user?.github || '',
+    portfolio: user?.portfolio || ''
+  })
+  const [savingProfile, setSavingProfile] = useState(false)
   // Add state for chat dialog
   const [showChatDialog, setShowChatDialog] = useState(false)
+
+  // Function to save profile data to backend
+  const saveProfileData = async (profileData: any) => {
+    try {
+      setSavingProfile(true)
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await apiCall('/api/students/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profileData)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Profile saved successfully:', data)
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been saved successfully!",
+        })
+        return data.data.student
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to save profile')
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save profile. Please try again.",
+        variant: "destructive"
+      })
+      throw error
+    } finally {
+      setSavingProfile(false)
+    }
+  }
+
+  // Function to handle logout
+  const handleLogout = () => {
+    // Show confirmation dialog
+    if (window.confirm('Are you sure you want to logout?')) {
+      try {
+        // Clear all authentication data
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('userId')
+        
+        // Show success message
+        toast({
+          title: "Logged Out",
+          description: "You have been successfully logged out.",
+        })
+        
+        // Redirect to login page
+        window.location.href = '/login'
+      } catch (error) {
+        console.error('Error during logout:', error)
+        toast({
+          title: "Logout Error",
+          description: "There was an error during logout. Please try again.",
+          variant: "destructive"
+        })
+      }
+    }
+  }
   
   // Add state for mentors
   const [mentors, setMentors] = useState<any[]>([])
@@ -207,6 +307,35 @@ export default function StudentDashboard() {
           setAnimatedStats(newStats)
         } else {
           console.error("Failed to fetch student data:", studentData.message)
+        }
+
+        // Fetch detailed student profile data
+        try {
+          const profileResponse = await apiCall("/api/students/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          console.log("Profile response status:", profileResponse.status)
+          const profileData = await profileResponse.json()
+          console.log("Profile response data:", profileData)
+          
+          if (profileResponse.ok && profileData.success) {
+            console.log("Profile data received:", profileData.data.student)
+            // Merge profile data with existing user data
+            setUser(prevUser => ({
+              ...prevUser,
+              ...profileData.data.student
+            }))
+          } else {
+            console.error("Failed to fetch profile data:", profileData.message || profileData)
+            // Don't show error to user for profile data, just log it
+            console.log("Continuing without profile data...")
+          }
+        } catch (profileError) {
+          console.error("Error fetching profile data:", profileError)
+          // Don't show error to user for profile data, just log it
+          console.log("Continuing without profile data...")
         }
 
         
@@ -1174,7 +1303,7 @@ export default function StudentDashboard() {
                     </Avatar>
                   </div>
                 </DialogTrigger>
-                <DialogContent className="bg-gray-900 border-gray-700 max-w-md">
+                <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader className="text-center">
                     <DialogTitle className="text-2xl gradient-text flex items-center justify-center">
                       <Users className="w-6 h-6 mr-2" />
@@ -1196,61 +1325,387 @@ export default function StudentDashboard() {
 
                       <div className="space-y-4">
                         {editProfile ? (
-                          <form className="space-y-4" onSubmit={e => { e.preventDefault(); setUser({ ...user, ...editForm }); setEditProfile(false); }}>
+                          <form className="space-y-4" onSubmit={async (e) => { 
+                            e.preventDefault(); 
+                            try {
+                              const savedProfile = await saveProfileData(editForm);
+                              setUser({ ...user, ...savedProfile });
+                              setEditProfile(false);
+                            } catch (error) {
+                              // Error is already handled in saveProfileData
+                            }
+                          }}>
+                            {/* Basic Information */}
+                            <div className="space-y-3">
+                              <h4 className="text-white font-medium flex items-center">
+                                <User className="w-4 h-4 mr-2" />
+                                Basic Information
+                              </h4>
+                              <div className="grid grid-cols-1 gap-3">
                             <div>
-                              <label className="block text-gray-400 mb-2 text-center">Full Name</label>
+                                  <label className="block text-gray-400 mb-1 text-sm">Full Name</label>
                               <input
-                                className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-center"
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
                                 value={editForm.name}
                                 onChange={e => setEditForm({ ...editForm, name: e.target.value })}
                                 required
                               />
                             </div>
                             <div>
-                              <label className="block text-gray-400 mb-2 text-center">Email Address</label>
+                                  <label className="block text-gray-400 mb-1 text-sm">Email Address</label>
                               <input
-                                className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-center"
+                                    type="email"
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
                                 value={editForm.email}
                                 onChange={e => setEditForm({ ...editForm, email: e.target.value })}
                                 required
                               />
                             </div>
-                            <div className="flex gap-3 pt-2">
-                              <Button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Phone Number</label>
+                                  <input
+                                    type="tel"
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.phone}
+                                    onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Academic Information */}
+                            <div className="space-y-3">
+                              <h4 className="text-white font-medium flex items-center">
+                                <GraduationCap className="w-4 h-4 mr-2" />
+                                Academic Information
+                              </h4>
+                              <div className="grid grid-cols-1 gap-3">
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Course/Program</label>
+                                  <input
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.course}
+                                    onChange={e => setEditForm({ ...editForm, course: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Semester/Year</label>
+                                  <input
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.semester}
+                                    onChange={e => setEditForm({ ...editForm, semester: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">University/College</label>
+                                  <input
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.university}
+                                    onChange={e => setEditForm({ ...editForm, university: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Contact & Location */}
+                            <div className="space-y-3">
+                              <h4 className="text-white font-medium flex items-center">
+                                <MapPin className="w-4 h-4 mr-2" />
+                                Location
+                              </h4>
+                              <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Location</label>
+                                <input
+                                  className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                  value={editForm.location}
+                                  onChange={e => setEditForm({ ...editForm, location: e.target.value })}
+                                  placeholder="City, State, Country"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Bio & Skills */}
+                            <div className="space-y-3">
+                              <h4 className="text-white font-medium flex items-center">
+                                <Briefcase className="w-4 h-4 mr-2" />
+                                About & Skills
+                              </h4>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Bio</label>
+                                  <Textarea
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm resize-none"
+                                    value={editForm.bio}
+                                    onChange={e => setEditForm({ ...editForm, bio: e.target.value })}
+                                    rows={3}
+                                    placeholder="Tell us about yourself..."
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Skills</label>
+                                  <input
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.skills}
+                                    onChange={e => setEditForm({ ...editForm, skills: e.target.value })}
+                                    placeholder="JavaScript, Python, React, etc."
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Career Interests</label>
+                                  <input
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.interests}
+                                    onChange={e => setEditForm({ ...editForm, interests: e.target.value })}
+                                    placeholder="Web Development, Data Science, etc."
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Social Links */}
+                            <div className="space-y-3">
+                              <h4 className="text-white font-medium flex items-center">
+                                <Globe className="w-4 h-4 mr-2" />
+                                Social Links
+                              </h4>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">LinkedIn</label>
+                                  <input
+                                    type="url"
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.linkedin}
+                                    onChange={e => setEditForm({ ...editForm, linkedin: e.target.value })}
+                                    placeholder="https://linkedin.com/in/username"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">GitHub</label>
+                                  <input
+                                    type="url"
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.github}
+                                    onChange={e => setEditForm({ ...editForm, github: e.target.value })}
+                                    placeholder="https://github.com/username"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-gray-400 mb-1 text-sm">Portfolio/Website</label>
+                                  <input
+                                    type="url"
+                                    className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 outline-none transition-colors text-sm"
+                                    value={editForm.portfolio}
+                                    onChange={e => setEditForm({ ...editForm, portfolio: e.target.value })}
+                                    placeholder="https://yourportfolio.com"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                              <Button 
+                                type="submit" 
+                                disabled={savingProfile}
+                                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                              >
+                                {savingProfile ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    Saving...
+                                  </>
+                                ) : (
+                                  <>
                                 <CheckCircle className="w-4 h-4 mr-2" />
                                 Save Changes
+                                  </>
+                                )}
                               </Button>
-                              <Button type="button" variant="outline" onClick={() => setEditProfile(false)} className="border-gray-600 text-gray-300 hover:bg-white/10">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                disabled={savingProfile}
+                                onClick={() => setEditProfile(false)} 
+                                className="border-gray-600 text-gray-300 hover:bg-white/10"
+                              >
                                 Cancel
                               </Button>
                             </div>
                           </form>
                         ) : (
-                          <>
-                            <div className="text-center">
-                              <label className="block text-gray-400 mb-1">Full Name</label>
-                              <p className="text-white font-medium">{user.name}</p>
+                          <div className="space-y-4">
+                            {/* Basic Information */}
+                            <div className="space-y-3">
+                              <h4 className="text-white font-medium flex items-center text-sm">
+                                <User className="w-4 h-4 mr-2" />
+                                Basic Information
+                              </h4>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400 text-sm">Full Name:</span>
+                                  <span className="text-white font-medium text-sm">{user.name}</span>
                             </div>
-                            <div className="text-center">
-                              <label className="block text-gray-400 mb-1">Email Address</label>
-                              <p className="text-white font-medium text-sm">{user.email}</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400 text-sm">Email:</span>
+                                  <span className="text-white font-medium text-sm">{user.email}</span>
                             </div>
-                            <div className="text-center">
-                              <label className="block text-gray-400 mb-1">Student ID</label>
-                              <p className="text-white font-medium font-mono">{studentId}</p>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400 text-sm">Phone:</span>
+                                  <span className="text-white font-medium text-sm">{user.phone || 'Not provided'}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400 text-sm">Student ID:</span>
+                                  <span className="text-white font-medium font-mono text-sm">{studentId}</span>
+                                </div>
+                              </div>
                             </div>
                             
-                            {/* Academic Information Section */}
+                            {/* Academic Information */}
+                            {(user.course || user.semester || user.university) && (
+                              <div className="space-y-3">
+                                <h4 className="text-white font-medium flex items-center text-sm">
+                                  <GraduationCap className="w-4 h-4 mr-2" />
+                                  Academic Information
+                                </h4>
+                                <div className="space-y-2">
+                                  {user.course && (
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-gray-400 text-sm">Course:</span>
+                                      <span className="text-white font-medium text-sm">{user.course}</span>
+                                    </div>
+                                  )}
+                                  {user.semester && (
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-gray-400 text-sm">Semester:</span>
+                                      <span className="text-white font-medium text-sm">{user.semester}</span>
+                                    </div>
+                                  )}
+                                  {user.university && (
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-gray-400 text-sm">University:</span>
+                                      <span className="text-white font-medium text-sm">{user.university}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
 
+                            {/* Location */}
+                            {user.location && (
+                              <div className="space-y-3">
+                                <h4 className="text-white font-medium flex items-center text-sm">
+                                  <MapPin className="w-4 h-4 mr-2" />
+                                  Location
+                                </h4>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400 text-sm">Location:</span>
+                                  <span className="text-white font-medium text-sm">{user.location}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Bio & Skills */}
+                            {(user.bio || user.skills || user.interests) && (
+                              <div className="space-y-3">
+                                <h4 className="text-white font-medium flex items-center text-sm">
+                                  <Briefcase className="w-4 h-4 mr-2" />
+                                  About & Skills
+                                </h4>
+                                <div className="space-y-2">
+                                  {user.bio && (
+                                    <div>
+                                      <span className="text-gray-400 text-sm block mb-1">Bio:</span>
+                                      <p className="text-white text-sm leading-relaxed">{user.bio}</p>
+                                    </div>
+                                  )}
+                                  {user.skills && (
+                                    <div>
+                                      <span className="text-gray-400 text-sm block mb-1">Skills:</span>
+                                      <p className="text-white text-sm">{user.skills}</p>
+                                    </div>
+                                  )}
+                                  {user.interests && (
+                                    <div>
+                                      <span className="text-gray-400 text-sm block mb-1">Career Interests:</span>
+                                      <p className="text-white text-sm">{user.interests}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Social Links */}
+                            {(user.linkedin || user.github || user.portfolio) && (
+                              <div className="space-y-3">
+                                <h4 className="text-white font-medium flex items-center text-sm">
+                                  <Globe className="w-4 h-4 mr-2" />
+                                  Social Links
+                                </h4>
+                                <div className="space-y-2">
+                                  {user.linkedin && (
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-gray-400 text-sm flex items-center">
+                                        <Linkedin className="w-3 h-3 mr-1" />
+                                        LinkedIn:
+                                      </span>
+                                      <a href={user.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                                        View Profile
+                                        <ExternalLink className="w-3 h-3 ml-1" />
+                                      </a>
+                                    </div>
+                                  )}
+                                  {user.github && (
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-gray-400 text-sm flex items-center">
+                                        <Github className="w-3 h-3 mr-1" />
+                                        GitHub:
+                                      </span>
+                                      <a href={user.github} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                                        View Profile
+                                        <ExternalLink className="w-3 h-3 ml-1" />
+                                      </a>
+                                    </div>
+                                  )}
+                                  {user.portfolio && (
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-gray-400 text-sm flex items-center">
+                                        <FileText className="w-3 h-3 mr-1" />
+                                        Portfolio:
+                                      </span>
+                                      <a href={user.portfolio} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                                        View Portfolio
+                                        <ExternalLink className="w-3 h-3 ml-1" />
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                             
                             <Button 
-                              onClick={() => { setEditForm({ name: user.name, email: user.email }); setEditProfile(true); }}
+                              onClick={() => { 
+                                setEditForm({ 
+                                  name: user.name || '', 
+                                  email: user.email || '',
+                                  phone: user.phone || '',
+                                  course: user.course || '',
+                                  semester: user.semester || '',
+                                  university: user.university || '',
+                                  location: user.location || '',
+                                  bio: user.bio || '',
+                                  skills: user.skills || '',
+                                  interests: user.interests || '',
+                                  linkedin: user.linkedin || '',
+                                  github: user.github || '',
+                                  portfolio: user.portfolio || ''
+                                }); 
+                                setEditProfile(true); 
+                              }}
                               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                             >
                               <Settings className="w-4 h-4 mr-2" />
                               Edit Profile
                             </Button>
-                          </>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1264,7 +1719,13 @@ export default function StudentDashboard() {
                 <p className="font-medium text-white text-xl">{user.name}</p>
               </div>
 
-              <Button variant="ghost" size="sm" className="hover-scale">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hover-scale"
+                onClick={handleLogout}
+                title="Logout"
+              >
                 <LogOut className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
               </Button>
             </div>

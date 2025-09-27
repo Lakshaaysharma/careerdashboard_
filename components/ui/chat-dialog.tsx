@@ -608,57 +608,61 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-gray-900">
+    <div className="fixed inset-0 z-50 bg-gray-900 overflow-hidden">
       {/* Header */}
-      <div className="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-6">
-        <div className="flex items-center space-x-4">
+      <div className="h-12 sm:h-14 md:h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-3 sm:px-4 md:px-6 shadow-lg">
+        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 flex-1 min-w-0">
           {selectedChat && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelectedChat(null)}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-white md:hidden flex-shrink-0 p-2"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           )}
-                     <div className="flex items-center space-x-2">
-             <MessageCircle className="w-6 h-6 text-blue-500" />
-             <h1 className="text-xl font-semibold text-white">Chat</h1>
-             <div className="text-xs text-gray-400 ml-2">
-               User ID: {getCurrentUserId()}
-             </div>
-           </div>
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-500 flex-shrink-0" />
+            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-white truncate">Chat</h1>
+            <div className="hidden lg:block text-xs text-gray-400 ml-2 flex-shrink-0">
+              User ID: {getCurrentUserId()}
+            </div>
+          </div>
         </div>
         
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onOpenChange(false)}
-          className="text-gray-400 hover:text-white"
+          className="text-gray-400 hover:text-white flex-shrink-0 p-2"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       </div>
       
-      <div className="flex h-[calc(100vh-4rem)]">
+      <div className="flex h-[calc(100vh-3rem)] sm:h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)]">
         {/* Left Sidebar - Chat List */}
-        <div className={`${selectedChat ? 'hidden md:block' : 'block'} w-80 border-r border-gray-700 bg-gray-800`}>
+        <div className={`${
+          selectedChat 
+            ? 'hidden md:block md:w-80' 
+            : 'block w-full md:w-80'
+        } border-r border-gray-700 bg-gray-800 flex flex-col`}>
           {/* Search */}
-          <div className="p-4 border-b border-gray-700">
+          <div className="p-2 sm:p-3 md:p-4 border-b border-gray-700 flex-shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search chats..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 text-sm h-9 sm:h-10"
               />
             </div>
           </div>
 
-                                   {/* Chat List */}
-             <div className="overflow-y-auto h-[calc(100vh-8rem)]">
+          {/* Chat List */}
+          <div className="flex-1 overflow-y-auto">
                {loading ? (
                  <div className="p-4 text-center text-gray-400">
                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
@@ -671,61 +675,61 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                    <p className="text-sm text-gray-500">Start a conversation below</p>
                  </div>
                ) : (
-                                  filteredChats.map((chat) => (
-                   <div
-                     key={chat?.id || `chat-${Math.random()}`}
-                     onClick={() => handleChatSelect(chat)}
-                     className={`p-4 cursor-pointer hover:bg-gray-700 transition-colors ${
-                       selectedChat?.id === chat?.id ? 'bg-gray-700' : ''
-                     }`}
-                   >
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
-                                             <Avatar className="w-12 h-12">
-                         <AvatarImage src={chat?.avatar || '/placeholder.svg'} />
-                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500">
-                           {chat?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
-                         </AvatarFallback>
-                       </Avatar>
-                                             <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-gray-800 ${getStatusColor(chat?.status || 'offline')}`} />
+            filteredChats.map((chat) => (
+              <div
+                key={chat?.id || `chat-${Math.random()}`}
+                onClick={() => handleChatSelect(chat)}
+                className={`p-2 sm:p-3 md:p-4 cursor-pointer hover:bg-gray-700 active:bg-gray-600 transition-colors touch-manipulation border-b border-gray-700/50 ${
+                  selectedChat?.id === chat?.id ? 'bg-gray-700' : ''
+                }`}
+              >
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="relative flex-shrink-0">
+                    <Avatar className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12">
+                      <AvatarImage src={chat?.avatar || '/placeholder.svg'} />
+                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-xs sm:text-sm md:text-base">
+                        {chat?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 rounded-full border-2 border-gray-800 ${getStatusColor(chat?.status || 'offline')}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-white font-medium truncate text-sm sm:text-base">{chat?.name || 'Unknown User'}</h3>
+                      {chat?.unreadCount > 0 && (
+                        <Badge className="bg-blue-500 text-white text-xs px-1.5 py-0.5 min-w-[20px] h-5 flex items-center justify-center">
+                          {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
+                        </Badge>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                                             <div className="flex items-center justify-between">
-                         <h3 className="text-white font-medium truncate">{chat?.name || 'Unknown User'}</h3>
-                         {chat?.unreadCount > 0 && (
-                           <Badge className="bg-blue-500 text-white text-xs">
-                             {chat.unreadCount}
-                           </Badge>
-                         )}
-                       </div>
-                                             <p className="text-gray-400 text-sm truncate">
-                         {chat?.lastMessage || 'No messages yet'}
-                       </p>
-                    </div>
-                                     </div>
-                 </div>
+                    <p className="text-gray-400 text-xs sm:text-sm truncate leading-tight">
+                      {chat?.lastMessage || 'No messages yet'}
+                    </p>
+                  </div>
+                </div>
+              </div>
                ))
                )}
                
-               {/* Users List for New Chats */}
-              <div className="border-t border-gray-700 pt-4">
-                <div className="px-4 pb-2">
-                  <h4 className="text-sm font-medium text-gray-400 mb-2">
-                    Start New Chat ({(() => {
-                      const availableStudents = users.students.filter(student => 
-                        !chats.some(chat => 
-                          chat.participants?.some((p: any) => p._id === student._id)
-                        )
-                      );
-                      const availableTeachers = users.teachers.filter(teacher => 
-                        !chats.some(chat => 
-                          chat.participants?.some((p: any) => p._id === teacher._id)
-                        )
-                      );
-                      return availableStudents.length + availableTeachers.length;
-                    })()})
-                  </h4>
-                </div>
+          {/* Users List for New Chats */}
+          <div className="border-t border-gray-700 pt-2 sm:pt-3 md:pt-4 flex-shrink-0">
+            <div className="px-2 sm:px-3 md:px-4 pb-2">
+              <h4 className="text-xs sm:text-sm font-medium text-gray-400 mb-2">
+                Start New Chat ({(() => {
+                  const availableStudents = users.students.filter(student => 
+                    !chats.some(chat => 
+                      chat.participants?.some((p: any) => p._id === student._id)
+                    )
+                  );
+                  const availableTeachers = users.teachers.filter(teacher => 
+                    !chats.some(chat => 
+                      chat.participants?.some((p: any) => p._id === teacher._id)
+                    )
+                  );
+                  return availableStudents.length + availableTeachers.length;
+                })()})
+              </h4>
+            </div>
                 
                 {(() => {
                   // Filter out users who already have chats
@@ -754,12 +758,12 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                     <div
                       key={user._id}
                       onClick={() => createChat(user._id, user.role === 'student' ? 'student' : 'student-teacher')}
-                      className="p-4 cursor-pointer hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0"
+                      className="p-2 sm:p-3 md:p-4 cursor-pointer hover:bg-gray-700 active:bg-gray-600 transition-colors border-b border-gray-700/50 last:border-b-0 touch-manipulation"
                     >
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="w-10 h-10">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <Avatar className="w-9 h-9 sm:w-10 sm:h-10 md:w-10 md:h-10 flex-shrink-0">
                           <AvatarImage src={user.avatar} />
-                          <AvatarFallback className={`${
+                          <AvatarFallback className={`text-xs sm:text-sm ${
                             user.role === 'student' 
                               ? 'bg-gradient-to-r from-green-500 to-blue-500' 
                               : 'bg-gradient-to-r from-purple-500 to-pink-500'
@@ -768,19 +772,19 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <h3 className="text-white font-medium truncate">{user.name}</h3>
-                            <Badge className={`text-xs ${
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h3 className="text-white font-medium truncate text-sm sm:text-base">{user.name}</h3>
+                            <Badge className={`text-xs px-1.5 py-0.5 ${
                               user.role === 'student' 
                                 ? 'bg-green-600 text-white' 
                                 : 'bg-purple-600 text-white'
                             }`}>
-                              {user.role === 'student' ? 'Student' : 'Teacher'}
+                              {user.role === 'student' ? 'S' : 'T'}
                             </Badge>
                           </div>
-                          <p className="text-gray-400 text-sm truncate">{user.email}</p>
+                          <p className="text-gray-400 text-xs sm:text-sm truncate leading-tight">{user.email}</p>
                         </div>
-                        <Plus className="w-5 h-5 text-gray-400" />
+                        <Plus className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       </div>
                     </div>
                   ));
@@ -790,47 +794,47 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
         </div>
 
         {/* Right Side - Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           {selectedChat ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-700 bg-gray-800">
+              <div className="p-2 sm:p-3 md:p-4 border-b border-gray-700 bg-gray-800 flex-shrink-0">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-10 h-10">
+                  <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                    <Avatar className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex-shrink-0">
                       <AvatarImage src={selectedChat.avatar} />
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500">
+                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-xs sm:text-sm md:text-base">
                         {selectedChat.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <h3 className="text-white font-medium">{selectedChat.name}</h3>
-                      <p className="text-gray-400 text-sm">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-white font-medium text-sm sm:text-base truncate">{selectedChat.name}</h3>
+                      <p className="text-gray-400 text-xs sm:text-sm truncate">
                         {selectedChat.status === "online" ? "Online" : 
                          selectedChat.status === "away" ? "Away" : 
                          selectedChat.lastSeen ? `Last seen ${selectedChat.lastSeen}` : "Offline"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                  <div className="flex items-center space-x-1 flex-shrink-0">
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hidden sm:flex p-2">
                       <Phone className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hidden sm:flex p-2">
                       <Video className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-2">
                       <UserPlus className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-2">
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
               </div>
 
-                              {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3 md:space-y-4 bg-gray-900">
                                      {loading ? (
                      <div className="flex items-center justify-center h-full">
                        <div className="text-gray-400">Loading messages...</div>
@@ -857,7 +861,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                              key={msg.id || msg._id}
                              className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
                            >
-                             <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                             <div className={`max-w-[90%] sm:max-w-[80%] md:max-w-xs lg:max-w-md px-2 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-2 rounded-lg ${
                                isMine
                                  ? 'bg-blue-600 text-white' 
                                  : 'bg-gray-700 text-white'
@@ -866,7 +870,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                                <div className={`text-xs mb-1 ${
                                  isMine ? 'text-blue-200 text-right' : 'text-gray-400 text-left'
                                }`}>
-                                 {getSenderName(msg)}
+                                 {!isMine && getSenderName(msg)}
                                </div>
                                
                                {/* Message content based on type */}
@@ -904,7 +908,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                                    </div>
                                  </div>
                                ) : (
-                                 <p>{msg?.text || 'Empty message'}</p>
+                                 <p className="text-sm sm:text-base break-words leading-relaxed">{msg?.text || 'Empty message'}</p>
                                )}
                                <p className={`text-xs mt-1 ${
                                  isMine ? 'text-blue-200' : 'text-gray-400'
@@ -936,10 +940,10 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                  </div>
 
               {/* Message Input */}
-              <div className="p-4 border-t border-gray-700 bg-gray-800">
+              <div className="p-2 sm:p-3 md:p-4 border-t border-gray-700 bg-gray-800 flex-shrink-0">
                 <div className="flex space-x-2">
                   {/* File Upload Button */}
-                  <div className="relative">
+                  <div className="relative flex-shrink-0">
                     <input
                       type="file"
                       id="file-upload"
@@ -952,7 +956,7 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => document.getElementById('file-upload')?.click()}
-                      className="text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600"
+                      className="text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 touch-manipulation p-2 h-9 sm:h-10"
                       title="Attach file (Images & PDFs)"
                     >
                       <Plus className="w-4 h-4" />
@@ -967,13 +971,13 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
                       handleTyping()
                     }}
                     onKeyPress={handleKeyPress}
-                    className="flex-1 bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    className="flex-1 bg-gray-700 border-gray-600 text-white placeholder-gray-400 text-sm h-9 sm:h-10"
                   />
                   
                   <Button 
                     onClick={handleSendMessage}
                     disabled={!message.trim()}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 touch-manipulation p-2 h-9 sm:h-10"
                   >
                     <Send className="w-4 h-4" />
                   </Button>
@@ -992,11 +996,11 @@ export function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
             </>
           ) : (
             /* No Chat Selected */
-            <div className="flex-1 flex items-center justify-center bg-gray-900">
-              <div className="text-center text-gray-400">
-                <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <h3 className="text-xl font-medium mb-2">Select a chat to start messaging</h3>
-                <p className="text-gray-500">Choose from your contacts on the left</p>
+            <div className="flex-1 flex items-center justify-center bg-gray-900 p-4">
+              <div className="text-center text-gray-400 max-w-xs sm:max-w-sm">
+                <MessageCircle className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 text-gray-600" />
+                <h3 className="text-base sm:text-lg md:text-xl font-medium mb-2">Select a chat to start messaging</h3>
+                <p className="text-gray-500 text-xs sm:text-sm md:text-base leading-relaxed">Choose from your contacts on the left</p>
               </div>
             </div>
           )}
